@@ -1,102 +1,168 @@
-/* 1. UVOZ PISAVE */
+/* --- 1. PISAVA IN OSNOVA --- */
 @font-face {
   font-family: 'Minecraftia';
-  /* Prepričaj se, da je datoteka v: public/fonts/Minecraftia-Regular.ttf */
-  src: url('/fonts/Minecraftia-Regular.ttf') format('truetype');
+  src: url('/fonts/franklin.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 :root {
-  --bg-color: #121212;
-  --tile-blank: #2a2a2a;
+  --bg-color: #ffffff;
+  --text-dark: #000000;
+  --tile-blank: #efefe6;
   --tile-selected: #5a594e;
-  --text-main: #ffffff;
-}
-
-.font-bold {
-  font-weight: bold !important;
-}
-
-.font-black {
-  font-weight: 900 !important;
-}
-
-/* Če Minecraftia nima prave 'bold' verzije v datoteki, 
-   lahko uporabiš tole, da jo brskalnik malo 'odebeli': */
-.category-1 span:first-child,
-.category-2 span:first-child,
-.category-3 span:first-child,
-.category-4 span:first-child {
-    font-weight: bold !important;
-    letter-spacing: 1px; /* Malo večji razmik za boljšo berljivost */
+  --tile-selected-text: #ffffff;
+  --color-cat-1: #f9df6d;
+  --color-cat-2: #a0c35a;
+  --color-cat-3: #b0c4ef;
+  --color-cat-4: #ba81c5;
 }
 
 body {
   background-color: var(--bg-color);
-  color: var(--text-main);
-  /* Uporabimo uvoženo pisavo */
+  color: var(--text-dark);
   font-family: 'Minecraftia', sans-serif;
   margin: 0;
-  padding: 0;
-}
-/* Temno zlata/rumena (namesto svetle) */
-.category-1 { 
-  background-color: #7a6200 !important; 
-  color: #ffffff !important; 
-  min-height: 4rem; 
-  margin-bottom: 0.5rem; 
-} 
-
-/* Temno gozdno zelena */
-.category-2 { 
-  background-color: #2d4216 !important; 
-  color: #ffffff !important; 
-  min-height: 4rem; 
-  margin-bottom: 0.5rem; 
-} 
-
-/* Temno polnočno modra */
-.category-3 { 
-  background-color: #1a3152 !important; 
-  color: #ffffff !important; 
-  min-height: 4rem; 
-  margin-bottom: 0.5rem; 
-} 
-
-/* Temno kraljevsko vijolična */
-.category-4 { 
-  background-color: #431d4a !important; 
-  color: #ffffff !important; 
-  min-height: 4rem; 
-  margin-bottom: 0.5rem; 
-}
-/* Ročni popravek za mrežo in Tailwind razrede */
-.grid { display: grid !important; }
-.grid-cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
-.gap-2 { gap: 0.5rem !important; }
-.w-full { width: 100% !important; }
-.max-w-\[500px\] { max-width: 500px !important; }
-.flex { display: flex !important; }
-.flex-col { flex-direction: column !important; }
-.items-center { align-items: center !important; }
-.justify-center { justify-content: center !important; }
-
-/* Osnovni stil za ploščice */
-.bg-zinc-800 { background-color: #030303 !important; }
-.bg-zinc-500 { background-color: #71717a !important; }
-.aspect-\[4\/3\] { aspect-ratio: 4 / 3 !important; }
-.rounded-md { border-radius: 0.375rem !important; }
-.text-white { color: white !important; }
-
-/* Dodatek za pisavo na gumbih, ker gumbi včasih ne podedujejo pisave od bodyja */
-button {
-  font-family: 'Minecraftia', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Gumbi in kontrole */
-.px-8 { padding-left: 2rem; padding-right: 2rem; }
-.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-.rounded-full { border-radius: 9999px; }
-.border { border: 1px solid; }
+/* --- 2. UGANJENE KATEGORIJE (Completed Rows) --- */
+.completed-row {
+  width: 100%;
+  min-height: 5rem;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Vrnemo na center, ker smo uredili hierarhijo */
+  text-align: center;
+}
+
+.completed-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 1px; /* Malo bolj naraven razmik */
+}
+
+.completed-members {
+  font-size: 16px;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  opacity: 0.9;
+}
+
+.cat-1 { background-color: var(--color-cat-1); }
+.cat-2 { background-color: var(--color-cat-2); }
+.cat-3 { background-color: var(--color-cat-3); }
+.cat-4 { background-color: var(--color-cat-4); }
+
+/* --- 3. IGRA: MREŽA IN PLOŠČICE --- */
+.game-container {
+  width: 100%;
+  max-width: 800px; /* Malo ožje za boljši izgled na namizju */
+  margin: 0 auto;
+}
+
+.tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.tile-button {
+  aspect-ratio: 4 / 2;
+  background-color: var(--tile-blank);
+  color: var(--text-dark);
+  font-family: 'Minecraftia', sans-serif;
+  font-size: 18px; /* Malo manjše, da se dolge besede ne zlomijo */
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  text-transform: uppercase;
+  transition: transform 0.01s ease; /* Popravljen transition speed */
+}
+
+.tile-button:hover {
+  background-color: #e2e2d9;
+}
+
+.tile-button.selected {
+  background-color: var(--tile-selected);
+  color: var(--tile-selected-text);
+}
+
+.tile-button:active {
+  transform: scale(0.96);
+}
+
+/* --- 4. VMESNIK (Centrirano) --- */
+
+/* Centriranje naslova h1 avtomatsko preko flex-col v page.tsx */
+h1 {
+  text-align: center;
+}
+
+.mistakes-container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* CENTRIRANO */
+  gap: 12px;
+  margin: 0 auto 2rem auto;
+  width: 100%;
+}
+
+.mistake-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.mistake-dot.filled { background-color: #000000; }
+.mistake-dot.empty { background-color: #e4e4e7; }
+
+.controls {
+  display: flex;
+  justify-content: center; /* CENTRIRANO */
+  gap: 12px;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.btn-base {
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-family: 'Minecraftia', sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 2s; /* Hitrejši feedback */
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #000000;
+  color: #000000;
+}
+
+.btn-primary {
+  background: #000000;
+  color: #ffffff;
+  border: 1px solid #000000;
+}
+
+.btn-primary:disabled {
+  background: #efefe6;
+  border-color: #efefe6;
+  color: #a1a1aa;
+  cursor: not-allowed;
+}

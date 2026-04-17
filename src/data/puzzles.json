@@ -1,22 +1,22 @@
 [
   {
     "id": 1,
-    "category": "F7 RELICS",
-    "words": ["BIGFOOT", "HANDLE", "ROCK", "EYE"]
+    "category": "REMOVED ENCHANTS",
+    "words": ["AIMING", "TELEKINESIS", "DRAGON HUNTER", "SYPHON"]
   },
   {
     "id": 2,
-    "category": "ASPECT OF THE",
-    "words": ["DRAGONS", "JERRY", "VOID", "END"]
+    "category": "MOUNTS",
+    "words": ["PIG", "HORSE", "ROCK", "ARMADILLO"]
   },
   {
     "id": 3,
-    "category": "SLAYER BOSSES",
-    "words": ["SVEN", "VOIDGLOOM", "REVENANT", "TARANTULA"]
+    "category": "ACCESSORY BAG",
+    "words": ["COLLECTION", "MINER", "JACOBUS", "ELIZABETH"]
   },
   {
     "id": 4,
-    "category": "MINING ORES",
-    "words": ["MITHRIL", "TITANIUM", "GEMSTONE", "COAL"]
+    "category": "ABANDONED QUARRY",
+    "words": ["QUARTZ", "TEA", "SILVERFISH", "MINES"]
   }
 ]
