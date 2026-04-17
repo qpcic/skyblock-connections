@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "category": "F7 RELICS",
+    "words": ["BIGFOOT", "HANDLE", "ROCK", "EYE"]
+  },
+  {
+    "id": 2,
+    "category": "ASPECT OF THE",
+    "words": ["DRAGONS", "JERRY", "VOID", "END"]
+  },
+  {
+    "id": 3,
+    "category": "SLAYER BOSSES",
+    "words": ["SVEN", "VOIDGLOOM", "REVENANT", "TARANTULA"]
+  },
+  {
+    "id": 4,
+    "category": "MINING ORES",
+    "words": ["MITHRIL", "TITANIUM", "GEMSTONE", "COAL"]
+  }
+]

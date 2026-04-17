@@ -1,0 +1,102 @@
+/* 1. UVOZ PISAVE */
+@font-face {
+  font-family: 'Minecraftia';
+  /* Prepričaj se, da je datoteka v: public/fonts/Minecraftia-Regular.ttf */
+  src: url('/fonts/Minecraftia-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg-color: #121212;
+  --tile-blank: #2a2a2a;
+  --tile-selected: #5a594e;
+  --text-main: #ffffff;
+}
+
+.font-bold {
+  font-weight: bold !important;
+}
+
+.font-black {
+  font-weight: 900 !important;
+}
+
+/* Če Minecraftia nima prave 'bold' verzije v datoteki, 
+   lahko uporabiš tole, da jo brskalnik malo 'odebeli': */
+.category-1 span:first-child,
+.category-2 span:first-child,
+.category-3 span:first-child,
+.category-4 span:first-child {
+    font-weight: bold !important;
+    letter-spacing: 1px; /* Malo večji razmik za boljšo berljivost */
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  /* Uporabimo uvoženo pisavo */
+  font-family: 'Minecraftia', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+/* Temno zlata/rumena (namesto svetle) */
+.category-1 { 
+  background-color: #7a6200 !important; 
+  color: #ffffff !important; 
+  min-height: 4rem; 
+  margin-bottom: 0.5rem; 
+} 
+
+/* Temno gozdno zelena */
+.category-2 { 
+  background-color: #2d4216 !important; 
+  color: #ffffff !important; 
+  min-height: 4rem; 
+  margin-bottom: 0.5rem; 
+} 
+
+/* Temno polnočno modra */
+.category-3 { 
+  background-color: #1a3152 !important; 
+  color: #ffffff !important; 
+  min-height: 4rem; 
+  margin-bottom: 0.5rem; 
+} 
+
+/* Temno kraljevsko vijolična */
+.category-4 { 
+  background-color: #431d4a !important; 
+  color: #ffffff !important; 
+  min-height: 4rem; 
+  margin-bottom: 0.5rem; 
+}
+/* Ročni popravek za mrežo in Tailwind razrede */
+.grid { display: grid !important; }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
+.gap-2 { gap: 0.5rem !important; }
+.w-full { width: 100% !important; }
+.max-w-\[500px\] { max-width: 500px !important; }
+.flex { display: flex !important; }
+.flex-col { flex-direction: column !important; }
+.items-center { align-items: center !important; }
+.justify-center { justify-content: center !important; }
+
+/* Osnovni stil za ploščice */
+.bg-zinc-800 { background-color: #030303 !important; }
+.bg-zinc-500 { background-color: #71717a !important; }
+.aspect-\[4\/3\] { aspect-ratio: 4 / 3 !important; }
+.rounded-md { border-radius: 0.375rem !important; }
+.text-white { color: white !important; }
+
+/* Dodatek za pisavo na gumbih, ker gumbi včasih ne podedujejo pisave od bodyja */
+button {
+  font-family: 'Minecraftia', sans-serif !important;
+}
+
+/* Gumbi in kontrole */
+.px-8 { padding-left: 2rem; padding-right: 2rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.rounded-full { border-radius: 9999px; }
+.border { border: 1px solid; }
