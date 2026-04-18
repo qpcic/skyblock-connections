@@ -226,12 +226,16 @@ h1 {
 
 .game-over-text {
   color: #ef4444; /* Rdeča */
-  animation: bounce 1s infinite;
+  font-size: 32px;
+  animation: bounce 1.67s infinite;
+  margin-top: -2rem;
 }
 
 .win-text {
   color: #16a34a; /* Zelena */
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  font-size: 32px;
+  margin-top: -3rem;
+  animation: pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Ker ne želimo Tailwind animacij, jih definirajmo tukaj: */
@@ -243,4 +247,83 @@ h1 {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: .5; }
+}
+
+.results-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 200px;
+  animation: fadeIn 2s ease-out;
+}
+
+.emoji-grid {
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: 4px;
+  text-align: center;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", Arial;
+}
+
+.emoji-row {
+  margin-bottom: 2px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-overlay {
+  position: fixed; /* Fiksno na ekranu */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7); /* Zatemnitev */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Nad vsemi elementi */
+  backdrop-filter: blur(5px);
+  animation: fadeIn 1s ease-out;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 41px;
+  font-weight: 900;
+  font-family: Karnak;
+  margin-bottom: 15px;
+  margin-top: -10px;
+}
+
+.share-btn {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.close-modal-text {
+  background: none;
+  border: none;
+  margin-top: 15px;
+  text-decoration: underline;
+  cursor: pointer;
+  color: #555;
 }
