@@ -7,6 +7,13 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'karnak'; /* To je ime, ki ga izbereš ti */
+  src: url('/fonts/karnak.ttf') format('truetype');
+  font-weight: bold;
+  font-display: swap;
+}
+
 :root {
   --bg-color: #ffffff;
   --text-dark: #000000;
@@ -27,6 +34,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.maintitle {
+  font-size: 41px;
+  font-weight: bolder;
+  font-family: karnak;
+}
+
 /* --- 2. UGANJENE KATEGORIJE (Completed Rows) --- */
 .completed-row {
   width: 100%;
@@ -36,34 +49,44 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Vrnemo na center, ker smo uredili hierarhijo */
+  justify-content: center;
   text-align: center;
+  /* Zagotovimo, da je besedilo vedno črno na barvnem ozadju,
+     razen če želiš drugače za specifične kategorije */
+  color: #000000;
 }
+
+/* Verzija za Tailwind escape-ane razrede */
+.completed-row.bg-\[\#f9df6d\] { background-color: var(--color-cat-1); color: #010101 !important; }
+.completed-row.bg-\[\#a0c35a\] { background-color: var(--color-cat-2); color: #010101 !important; }
+.completed-row.bg-\[\#b0c4ef\] { background-color: var(--color-cat-3); color: #010101 !important; }
+.completed-row.bg-\[\#ba81c5\] { background-color: var(--color-cat-4); color: #010101 !important; }
+
+/* Verzija za fiksne razrede cat-1 do cat-4 */
+.cat-1 { background-color: var(--color-cat-1); color: #010101 !important; }
+.cat-2 { background-color: var(--color-cat-2); color: #010101 !important; }
+.cat-3 { background-color: var(--color-cat-3); color: #010101 !important; }
+.cat-4 { background-color: var(--color-cat-4); color: #010101 !important; }
 
 .completed-title {
   font-size: 24px;
   font-weight: bold;
   text-transform: uppercase;
-  margin-bottom: 1px; /* Malo bolj naraven razmik */
+  margin-bottom: 1px;
 }
 
 .completed-members {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: normal;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  opacity: 0.9;
+  opacity: 0.95;
 }
-
-.cat-1 { background-color: var(--color-cat-1); }
-.cat-2 { background-color: var(--color-cat-2); }
-.cat-3 { background-color: var(--color-cat-3); }
-.cat-4 { background-color: var(--color-cat-4); }
 
 /* --- 3. IGRA: MREŽA IN PLOŠČICE --- */
 .game-container {
   width: 100%;
-  max-width: 800px; /* Malo ožje za boljši izgled na namizju */
+  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -78,7 +101,7 @@ body {
   background-color: var(--tile-blank);
   color: var(--text-dark);
   font-family: 'Minecraftia', sans-serif;
-  font-size: 18px; /* Malo manjše, da se dolge besede ne zlomijo */
+  font-size: 18px;
   font-weight: bold;
   border-radius: 8px;
   border: none;
@@ -88,7 +111,7 @@ body {
   justify-content: center;
   padding: 4px;
   text-transform: uppercase;
-  transition: transform 0.01s ease; /* Popravljen transition speed */
+  transition: transform 0.01s ease;
 }
 
 .tile-button:hover {
@@ -106,33 +129,53 @@ body {
 
 /* --- 4. VMESNIK (Centrirano) --- */
 
-/* Centriranje naslova h1 avtomatsko preko flex-col v page.tsx */
 h1 {
   text-align: center;
 }
 
 .mistakes-container {
   display: flex;
+  flex-direction: row; /* Napis in pike gredo levo-desno */
   align-items: center;
-  justify-content: center; /* CENTRIRANO */
+  justify-content: center;
   gap: 12px;
   margin: 0 auto 2rem auto;
   width: 100%;
+}
+
+.mistakes-label {
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #000000;
+}
+
+/* Ta razred poskrbi, da so pike VEDNO v vrsti */
+.dots-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px; /* Razmik med samimi pikami */
 }
 
 .mistake-dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
+  flex-shrink: 0;
   transition: background-color 0.3s ease;
 }
 
-.mistake-dot.filled { background-color: #000000; }
-.mistake-dot.empty { background-color: #e4e4e7; }
+.mistake-dot.filled {
+  background-color: #000000;
+}
+
+.mistake-dot.empty {
+  background-color: #e4e4e7;
+}
 
 .controls {
   display: flex;
-  justify-content: center; /* CENTRIRANO */
+  justify-content: center;
   gap: 12px;
   margin-top: 2rem;
   width: 100%;
@@ -145,7 +188,7 @@ h1 {
   font-size: 15px;
   font-weight: bold;
   cursor: pointer;
-  transition: opacity 2s; /* Hitrejši feedback */
+  transition: all 0.2s ease;
 }
 
 .btn-secondary {
@@ -165,4 +208,39 @@ h1 {
   border-color: #efefe6;
   color: #a1a1aa;
   cursor: not-allowed;
+}
+
+.status-message-container {
+  margin-top: 2rem;
+  display: flex;
+  font-size: 24px;
+  flex-direction: column;
+  align-items: center; /* Centriranje vodoravno */
+  justify-content: center; /* Centriranje navpično */
+  text-align: center;
+  min-height: 60px;
+  width: 100%;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.game-over-text {
+  color: #ef4444; /* Rdeča */
+  animation: bounce 1s infinite;
+}
+
+.win-text {
+  color: #16a34a; /* Zelena */
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Ker ne želimo Tailwind animacij, jih definirajmo tukaj: */
+@keyframes bounce {
+  0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+  50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
 }
