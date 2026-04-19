@@ -57,7 +57,7 @@ export default function ConnectionsGame() {
 
     try {
       await navigator.clipboard.writeText(jsonString);
-      alert("Shuffle JSON copied to clipboard! Paste it into your shuffle.json file.");
+      //alert("Shuffle JSON copied to clipboard! Paste it into your shuffle.json file.");
     } catch (err) {
       console.error("Failed to copy!", err);
       alert("Failed to copy to clipboard. Check console.");
