@@ -14,9 +14,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {/* Children je tvoj page.tsx, ki se izriše tukaj */}
         {children}
-      <Analytics/>s
+      <Analytics/>
       </body>
     </html>
   );

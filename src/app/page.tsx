@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getDailyPuzzle } from '../lib/gameLogic';
+import { sendToDiscord } from './submit/actions'; // Import the action we created earlier
 
 export default function ConnectionsGame() {
   const [gameData, setGameData] = useState<any>(null);
@@ -11,6 +12,10 @@ export default function ConnectionsGame() {
   const [guesses, setGuesses] = useState<number[][]>([]);
   const [idToColorMap, setIdToColorMap] = useState<Record<number, number>>({});
   const [showModal, setShowModal] = useState(false);
+
+  // New state for Suggestion Modal
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     const data = getDailyPuzzle();
@@ -55,26 +60,48 @@ export default function ConnectionsGame() {
 
   const handleSubmit = () => {
     if (selected.length !== 4) return;
-
     const currentGuessColors = selected.map(word => {
       const tile = gameData.tiles.find((t: any) => t.word === word);
       return idToColorMap[tile.categoryId];
     });
-
     setGuesses(prev => [...prev, currentGuessColors]);
-
     const firstWordTile = gameData.tiles.find((t: any) => t.word === selected[0]);
     const isCorrect = selected.every(word => {
       const tile = gameData.tiles.find((t: any) => t.word === word);
       return tile.categoryId === firstWordTile.categoryId;
     });
-
     if (isCorrect) {
       const correctGroup = gameData.groups.find((g: any) => g.id === firstWordTile.categoryId);
       setCompletedGroups([...completedGroups, correctGroup]);
       setSelected([]);
     } else {
       setMistakes(prev => Math.max(0, prev - 1));
+    }
+  };
+
+  // Logic for handling the Discord submission
+  const onSubmitSuggestion = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSending(true);
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      category: formData.get("category") as string,
+      words: [
+        formData.get("w1") as string,
+        formData.get("w2") as string,
+        formData.get("w3") as string,
+        formData.get("w4") as string,
+      ],
+      author: formData.get("author") as string,
+    };
+
+    const res = await sendToDiscord(data);
+    setIsSending(false);
+    if (res.success) {
+      setShowSuggestModal(false);
+      alert("Suggestion sent to the admins! Thanks for helping out.");
+    } else {
+      alert("Failed to send. Please try again.");
     }
   };
 
@@ -115,7 +142,6 @@ export default function ConnectionsGame() {
         </div>
 
         <div className="controls">
-          {/* Če je igre konec, pokažemo samo gumb Results, sicer pa Shuffle/Deselect/Submit */}
           {!isGameOver ? (
               <>
                 <button
@@ -155,6 +181,7 @@ export default function ConnectionsGame() {
           )}
         </div>
 
+        {/* RESULTS MODAL */}
         {showModal && (
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -169,7 +196,6 @@ export default function ConnectionsGame() {
                       </div>
                   ))}
                 </div>
-
                 <button
                     onClick={() => {
                       const grid = guesses.map(g => g.map(id => ({ 1: "🟨", 2: "🟩", 3: "🟦", 4: "🟪" }[id as 1 | 2 | 3 | 4])).join("")).join("\n");
@@ -185,18 +211,55 @@ export default function ConnectionsGame() {
               </div>
             </div>
         )}
+
+        {/* SUGGESTION MODAL */}
+        {showSuggestModal && (
+            <div className="modal-overlay" onClick={() => setShowSuggestModal(false)}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <h2 className="modal-title">Suggest Words</h2>
+                <form onSubmit={onSubmitSuggestion} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
+                  <input name="category" placeholder="Category Name" required className="tile-button" style={{ textAlign: 'left', padding: '10px', fontSize: '0.9rem' }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <input name="w1" placeholder="Word 1" required className="tile-button" style={{ fontSize: '0.8rem' }} />
+                    <input name="w2" placeholder="Word 2" required className="tile-button" style={{ fontSize: '0.8rem' }} />
+                    <input name="w3" placeholder="Word 3" required className="tile-button" style={{ fontSize: '0.8rem' }} />
+                    <input name="w4" placeholder="Word 4" required className="tile-button" style={{ fontSize: '0.8rem' }} />
+                  </div>
+                  <input name="author" placeholder="Your IGN (Optional)" className="tile-button" style={{ textAlign: 'left', padding: '10px', fontSize: '0.9rem' }} />
+
+                  <button type="submit" disabled={isSending} className="btn-base btn-primary" style={{ marginTop: '10px' }}>
+                    {isSending ? "Sending..." : "Submit Suggestion"}
+                  </button>
+                </form>
+                <button onClick={() => setShowSuggestModal(false)} className="close-modal-text">
+                  Cancel
+                </button>
+              </div>
+            </div>
+        )}
+
         {/* FOOTER */}
-        <footer className="footer-container">
-          <span>© {new Date().getFullYear()}</span>
-          <span className="footer-separator">|</span>
-          <a
-              href="https://github.com/qpcic/skyblock-connections"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="github-link"
+        <footer className="footer-container" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '40px' }}>
+          <button
+              onClick={() => setShowSuggestModal(true)}
+              className="btn-base btn-secondary"
+              style={{ padding: '8px 20px', fontSize: '1rem' }}
           >
-            GitHub
-          </a>
+            Suggest words
+          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span>© {new Date().getFullYear()}</span>
+            <span className="footer-separator">|</span>
+            <a
+                href="https://github.com/qpcic/skyblock-connections"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="github-link"
+            >
+              GitHub
+            </a>
+          </div>
         </footer>
       </main>
   );
