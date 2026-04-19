@@ -361,3 +361,18 @@ h1 {
   flex-direction: column;
   min-height: 100vh;
 }
+
+.text-green-example {
+  color: #a0c35a !important;
+  font-size: large;
+}
+
+.text-purple-example {
+  color: #ba81c5 !important;
+  font-size: large;
+}
+
+.how-to-play-button-gap {
+  margin-top: 10px !important;
+
+}

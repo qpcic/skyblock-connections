@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { getDailyPuzzle } from '../lib/gameLogic';
 import { sendToDiscord } from './submit/actions';
 import puzzles from '../data/puzzles.json';
+import HowToPlay from "@/src/app/components/HowToPlay";
 
 // --- CONFIGURATION ---
 const DEV_MODE = false; // Set to true to see Dev buttons and skip days on F5
@@ -206,6 +207,7 @@ export default function ConnectionsGame() {
                 <div key={i} className={`mistake-dot ${i < mistakes ? 'filled' : 'empty'}`}/>
             ))}
           </div>
+          <HowToPlay />
         </div>
 
         <div className="game-container">
@@ -254,6 +256,7 @@ export default function ConnectionsGame() {
           {mistakes === 0 && <div className="game-over-text">Game Over!</div>}
           {remainingTiles.length === 0 && completedGroups.length === 4 && <div className="win-text">Perfect!</div>}
         </div>
+
 
         {/* RESULTS MODAL */}
         {showModal && (
