@@ -214,6 +214,7 @@ h1 {
 
 .status-message-container {
   margin-top: 2rem;
+  margin-bottom: -2.5rem;
   display: flex;
   font-size: 24px;
   flex-direction: column;
@@ -229,7 +230,7 @@ h1 {
 .game-over-text {
   color: #ef4444; /* Rdeča */
   font-size: 32px;
-  animation: bounce 1.67s infinite;
+  animation: bounce 3s infinite;
   margin-top: -2rem;
 }
 
@@ -331,7 +332,7 @@ h1 {
 }
 
 .footer-container {
-  padding: 0rem 0 1rem 0;
+  padding-top: 41px;
   display: flex;
   align-items: center;
   justify-content: center;

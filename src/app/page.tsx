@@ -142,12 +142,19 @@ export default function ConnectionsGame() {
         </div>
 
         <div className="controls">
+          <button
+              onClick={() => setShowSuggestModal(true)}
+              className="btn-base btn-secondary"
+              style={{padding: '8px 20px', fontSize: '1rem'}}
+          >
+            Suggest words
+          </button>
           {!isGameOver ? (
               <>
                 <button
                     onClick={() => {
                       const shuffled = [...gameData.tiles].sort(() => Math.random() - 0.5);
-                      setGameData({ ...gameData, tiles: shuffled });
+                      setGameData({...gameData, tiles: shuffled});
                     }}
                     className="btn-base btn-secondary"
                 >
@@ -199,7 +206,7 @@ export default function ConnectionsGame() {
                 <button
                     onClick={() => {
                       const grid = guesses.map(g => g.map(id => ({ 1: "🟨", 2: "🟩", 3: "🟦", 4: "🟪" }[id as 1 | 2 | 3 | 4])).join("")).join("\n");
-                      navigator.clipboard.writeText(`Skyblock Connections\nPuzzle #${gameData.day || 1}\n${grid}`);
+                      navigator.clipboard.writeText(`Skyblock Connections\nPuzzle #${gameData.day || 1}\n${grid}\n\nPlay: https://skyblock-connections.com/`);
                     }}
                     className="btn-base btn-primary share-btn"
                 >
@@ -240,13 +247,6 @@ export default function ConnectionsGame() {
 
         {/* FOOTER */}
         <footer className="footer-container" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '40px' }}>
-          <button
-              onClick={() => setShowSuggestModal(true)}
-              className="btn-base btn-secondary"
-              style={{ padding: '8px 20px', fontSize: '1rem' }}
-          >
-            Suggest words
-          </button>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span>© {new Date().getFullYear()}</span>

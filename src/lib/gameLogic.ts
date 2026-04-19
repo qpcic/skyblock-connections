@@ -7,7 +7,7 @@ import puzzles from '../data/puzzles.json';
 export const getDailyPuzzle = () => {
   // --- KONFIGURACIJA ---
   // Nastavi na 'true' za fiksni dnevni puzzle, 'false' za nov puzzle ob vsakem reloadu.
-  const isDaily = false;
+  const isDaily = true;
   // ---------------------
 
   const datePart = new Date().toISOString().split('T')[0];

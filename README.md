@@ -14,5 +14,5 @@
   <br />
 
 ### 🎮 Play Now
-[**skyblock-connections.vercel.app**](https://skyblock-connections.vercel.app)
+[**skyblock-connections.com**](https://skyblock-connections.com/)
 </div>
