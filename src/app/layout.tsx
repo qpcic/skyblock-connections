@@ -2,7 +2,7 @@ import "./globals.css";
 
 export const metadata = {
   title: "Skyblock Connections",
-  description: "Hypixel Skyblock themed puzzle",
+  description: "Skyblock variant of the New York Times' Connections game",
 };
 
 export default function RootLayout({

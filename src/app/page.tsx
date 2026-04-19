@@ -185,6 +185,19 @@ export default function ConnectionsGame() {
               </div>
             </div>
         )}
+        {/* FOOTER */}
+        <footer className="footer-container">
+          <span>© {new Date().getFullYear()}</span>
+          <span className="footer-separator">|</span>
+          <a
+              href="https://github.com/qpcic/skyblock-connections"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="github-link"
+          >
+            GitHub
+          </a>
+        </footer>
       </main>
   );
 }
