@@ -1,15 +1,11 @@
 "use server";
 
 export async function sendToDiscord(data: { category: string, words: string[], author: string }) {
-    const WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+    // Hardcoded URL as requested
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1495224796227698728/GNQRsK-vAYteTyERpj0pH1W1vM3M-P5ToqDutX2pcMlKOCasaOVCIx65S8TUSrPTo2Og";
 
-    // This is the direct link to your PNG on GitHub
+    // Direct link to your PNG on GitHub (Raw version)
     const GITHUB_AVATAR = "https://raw.githubusercontent.com/qpcic/skyblock-connections/main/public/icon.png";
-
-    if (!WEBHOOK_URL) {
-        console.error("DISCORD_WEBHOOK_URL is not defined in environment variables");
-        return { success: false };
-    }
 
     try {
         const response = await fetch(WEBHOOK_URL, {
