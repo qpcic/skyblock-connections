@@ -1,4 +1,5 @@
 import "./globals.css";
+import {Analytics} from "@vercel/analytics/next";
 
 export const metadata = {
   title: "Skyblock Connections",
@@ -15,6 +16,7 @@ export default function RootLayout({
       <body>
         {/* Children je tvoj page.tsx, ki se izriše tukaj */}
         {children}
+      <Analytics/>s
       </body>
     </html>
   );
