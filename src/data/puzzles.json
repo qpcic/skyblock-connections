@@ -101,5 +101,14 @@
   { "id": 100, "category": "CORPSES", "words": ["LAPIS", "VANGUARD", "UMBER", "TUNGSTEN"] },
   { "id": 101, "category": "ARACHNE", "words": ["KEEPER", "SET", "CALLING", "SANCTUARY"] },
   { "id": 102, "category": "DRAGON PETS", "words": ["ENDER", "JADE", "GOLDEN", "ROSE"] },
-  { "id": 103, "category": "SLAYER MINI BOSSES", "words": ["MANIAC", "ENFORCER", "KINDLEHEART", "RADICAL"] }
+  { "id": 103, "category": "SLAYER MINI BOSSES", "words": ["MANIAC", "ENFORCER", "KINDLEHEART", "RADICAL"] },
+  { "id": 104, "category": "EPIC TROPHY FISH", "words": ["KARATE", "SOUL", "SKELETON", "MOLD"] },
+  { "id": 105, "category": "HEALING WANDS", "words": ["HEALING", "ATONEMENT", "RESTORATION", "MENDING"] },
+  { "id": 106, "category": "REND ITEMS", "words": ["BLADE OF THE VOLCANO", "ATOMSPLIT KATANA", "HYPERION", "POOCH SWORD"] },
+  { "id": 107, "category": "TEAM TREASURITE", "words": ["SEBASTIAN", "VIPER", "CORLEONE", "WENDY"] },
+  { "id": 108, "category": "TEAM TREASURITE MOBS", "words": ["SPIDER", "WITHER", "WOLF", "MITE"] },
+  { "id": 109, "category": "HEALTH COST ITEMS", "words": ["BOOK", "FLOWER", "WHEAT", "STICK"] },
+  { "id": 110, "category": "SUMMONING", "words": ["GHOUL", "HOE", "SWORD", "RING"] },
+  { "id": 111, "category": "NUCLEUS DROPS", "words": ["ALLOY", "FRAGMENT", "MIXTURE", "CLAW"] },
+  { "id": 112, "category": "CRYSTAL HOLLOWS POINTS OF INTEREST", "words": ["TEMPLE", "CITY", "DEN", "MINES"] }
 ]
