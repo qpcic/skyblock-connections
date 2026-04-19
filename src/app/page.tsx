@@ -250,15 +250,7 @@ export default function ConnectionsGame() {
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span>© {new Date().getFullYear()}</span>
-            <span className="footer-separator">|</span>
-            <a
-                href="https://github.com/qpcic/skyblock-connections"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="github-link"
-            >
-              GitHub
-            </a>
+            <span className="footer-separator">| qpcic</span>
           </div>
         </footer>
       </main>
