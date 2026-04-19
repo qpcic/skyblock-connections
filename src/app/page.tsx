@@ -12,11 +12,28 @@ export default function ConnectionsGame() {
   const [guesses, setGuesses] = useState<number[][]>([]);
   const [idToColorMap, setIdToColorMap] = useState<Record<number, number>>({});
   const [showModal, setShowModal] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false); // New flag to ensure storage is loaded
 
   // New state for Suggestion Modal
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
+  // --- Board Number Calculation ---
+  const startDate = new Date('2026-04-19T00:00:00');
+  const today = new Date();
+  startDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  const diffTime = Math.abs(today.getTime() - startDate.getTime());
+  const boardNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+  const formattedDate = today.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  // 1. Initial Puzzle Load
   useEffect(() => {
     const data = getDailyPuzzle();
     setGameData(data);
@@ -26,18 +43,42 @@ export default function ConnectionsGame() {
       mapping[group.id] = index + 1;
     });
     setIdToColorMap(mapping);
-  }, []);
+
+    // 2. Load Progress from LocalStorage
+    const saved = localStorage.getItem(`skyblock-progress-${boardNumber}`);
+    if (saved) {
+      const { savedSelected, savedCompleted, savedMistakes, savedGuesses } = JSON.parse(saved);
+      if (savedSelected) setSelected(savedSelected);
+      if (savedCompleted) setCompletedGroups(savedCompleted);
+      if (savedMistakes !== undefined) setMistakes(savedMistakes);
+      if (savedGuesses) setGuesses(savedGuesses);
+    }
+    setIsLoaded(true);
+  }, [boardNumber]);
+
+  // 3. Save Progress to LocalStorage on every change
+  useEffect(() => {
+    if (isLoaded) {
+      const progress = {
+        savedSelected: selected,
+        savedCompleted: completedGroups,
+        savedMistakes: mistakes,
+        savedGuesses: guesses,
+      };
+      localStorage.setItem(`skyblock-progress-${boardNumber}`, JSON.stringify(progress));
+    }
+  }, [selected, completedGroups, mistakes, guesses, boardNumber, isLoaded]);
 
   const isGameOver = mistakes === 0 || completedGroups.length === 4;
 
   useEffect(() => {
-    if (isGameOver) {
+    if (isGameOver && isLoaded) {
       const timer = setTimeout(() => setShowModal(true), 800);
       return () => clearTimeout(timer);
     }
-  }, [isGameOver]);
+  }, [isGameOver, isLoaded]);
 
-  if (!gameData) {
+  if (!gameData || !isLoaded) {
     return (
         <div className="loading-container">
           <div className="loading-text">Loading Skyblock Puzzle...</div>
@@ -79,7 +120,6 @@ export default function ConnectionsGame() {
     }
   };
 
-  // Logic for handling the Discord submission
   const onSubmitSuggestion = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSending(true);
@@ -109,11 +149,15 @@ export default function ConnectionsGame() {
       <main className="main-wrapper">
         <h1 className="maintitle">Skyblock Connections</h1>
 
+        <div style={{textAlign: 'center', marginBottom: '20px', fontSize: '1.1rem', fontWeight: '500', opacity: 0.9}}>
+          {formattedDate} | Board #{boardNumber}
+        </div>
+
         <div className="mistakes-container">
           <span className="mistakes-label">Lives:</span>
           <div className="dots-row">
             {[...Array(4)].map((_, i) => (
-                <div key={i} className={`mistake-dot ${i < mistakes ? 'filled' : 'empty'}`} />
+                <div key={i} className={`mistake-dot ${i < mistakes ? 'filled' : 'empty'}`}/>
             ))}
           </div>
         </div>
@@ -197,7 +241,7 @@ export default function ConnectionsGame() {
                   {guesses.map((guess, i) => (
                       <div key={i} className="emoji-row">
                         {guess.map((id, j) => {
-                          const map: Record<number, string> = { 1: "🟨", 2: "🟩", 3: "🟦", 4: "🟪" };
+                          const map: Record<number, string> = {1: "🟨", 2: "🟩", 3: "🟦", 4: "🟪"};
                           return <span key={j}>{map[id] || "⬛"}</span>;
                         })}
                       </div>
@@ -205,8 +249,13 @@ export default function ConnectionsGame() {
                 </div>
                 <button
                     onClick={() => {
-                      const grid = guesses.map(g => g.map(id => ({ 1: "🟨", 2: "🟩", 3: "🟦", 4: "🟪" }[id as 1 | 2 | 3 | 4])).join("")).join("\n");
-                      navigator.clipboard.writeText(`Skyblock Connections\nPuzzle #${gameData.day || 1}\n${grid}\n\nPlay: https://skyblock-connections.com/`);
+                      const grid = guesses.map(g => g.map(id => ({
+                        1: "🟨",
+                        2: "🟩",
+                        3: "🟦",
+                        4: "🟪"
+                      }[id as 1 | 2 | 3 | 4])).join("")).join("\n");
+                      navigator.clipboard.writeText(`Skyblock Connections\nPuzzle #${boardNumber}\n${grid}\n\nPlay: https://skyblock-connections.com/`);
                     }}
                     className="btn-base btn-primary share-btn"
                 >
@@ -224,17 +273,25 @@ export default function ConnectionsGame() {
             <div className="modal-overlay" onClick={() => setShowSuggestModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <h2 className="modal-title">Suggest Words</h2>
-                <form onSubmit={onSubmitSuggestion} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
-                  <input name="category" placeholder="Category Name" required className="tile-button" style={{ textAlign: 'left', padding: '10px', fontSize: '0.9rem' }} />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                    <input name="w1" placeholder="Word 1" required className="tile-button" style={{ fontSize: '0.8rem' }} />
-                    <input name="w2" placeholder="Word 2" required className="tile-button" style={{ fontSize: '0.8rem' }} />
-                    <input name="w3" placeholder="Word 3" required className="tile-button" style={{ fontSize: '0.8rem' }} />
-                    <input name="w4" placeholder="Word 4" required className="tile-button" style={{ fontSize: '0.8rem' }} />
+                <form onSubmit={onSubmitSuggestion}
+                      style={{display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px'}}>
+                  <input name="category" placeholder="Category Name" required className="tile-button"
+                         style={{textAlign: 'left', padding: '10px', fontSize: '0.9rem'}}/>
+                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
+                    <input name="w1" placeholder="Word 1" required className="tile-button"
+                           style={{fontSize: '0.8rem'}}/>
+                    <input name="w2" placeholder="Word 2" required className="tile-button"
+                           style={{fontSize: '0.8rem'}}/>
+                    <input name="w3" placeholder="Word 3" required className="tile-button"
+                           style={{fontSize: '0.8rem'}}/>
+                    <input name="w4" placeholder="Word 4" required className="tile-button"
+                           style={{fontSize: '0.8rem'}}/>
                   </div>
-                  <input name="author" placeholder="Your IGN (Optional)" className="tile-button" style={{ textAlign: 'left', padding: '10px', fontSize: '0.9rem' }} />
+                  <input name="author" placeholder="Your IGN (Optional)" className="tile-button"
+                         style={{textAlign: 'left', padding: '10px', fontSize: '0.9rem'}}/>
 
-                  <button type="submit" disabled={isSending} className="btn-base btn-primary" style={{ marginTop: '10px' }}>
+                  <button type="submit" disabled={isSending} className="btn-base btn-primary"
+                          style={{marginTop: '10px'}}>
                     {isSending ? "Sending..." : "Submit Suggestion"}
                   </button>
                 </form>
@@ -245,10 +302,9 @@ export default function ConnectionsGame() {
             </div>
         )}
 
-        {/* FOOTER */}
-        <footer className="footer-container" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '40px' }}>
-
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <footer className="footer-container"
+                style={{display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '40px'}}>
+          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
             <span>© {new Date().getFullYear()}</span>
             <span className="footer-separator">| qpcic</span>
           </div>
