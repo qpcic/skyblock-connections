@@ -115,6 +115,31 @@ export default function ConnectionsGame() {
     setIsLoaded(true);
   }, [realBoardNumber]);
 
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      const diff = tomorrow.getTime() - now.getTime();
+
+      const h = Math.floor(diff / (1000 * 60 * 60));
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+
+      // Formats to 00:00:00
+      setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+    };
+
+    const timerId = setInterval(updateTimer, 1000);
+    updateTimer(); // Initial call
+
+    return () => clearInterval(timerId);
+  }, []);
+
   // 2. Save Progress
   useEffect(() => {
     if (isLoaded) {
@@ -197,7 +222,12 @@ export default function ConnectionsGame() {
         <h1 className="maintitle">Skyblock Connections</h1>
 
         <div style={{textAlign: 'center', marginBottom: '20px', fontSize: '1.1rem', fontWeight: '500', opacity: 0.9}}>
-          {formattedDate} | Board #{activeBoardNumber} {DEV_MODE && <span style={{color: '#ff4d4d'}}>(DEV)</span>}
+          {formattedDate} | Board #{activeBoardNumber}
+          {DEV_MODE && <span style={{color: '#ff4d4d'}}> (DEV)</span>}
+
+          <span style={{}}>
+     , Next in: <span style={{}}>{timeLeft}</span>
+  </span>
         </div>
 
         <div className="mistakes-container">
@@ -207,7 +237,7 @@ export default function ConnectionsGame() {
                 <div key={i} className={`mistake-dot ${i < mistakes ? 'filled' : 'empty'}`}/>
             ))}
           </div>
-          <HowToPlay />
+          <HowToPlay/>
         </div>
 
         <div className="game-container">
@@ -243,9 +273,12 @@ export default function ConnectionsGame() {
                       setGameData({...gameData, tiles: shuffled});
                     }}
                     className="btn-base btn-secondary"
-                >Shuffle</button>
+                >Shuffle
+                </button>
                 <button onClick={() => setSelected([])} className="btn-base btn-secondary">Deselect</button>
-                <button onClick={handleSubmit} disabled={selected.length !== 4} className="btn-base btn-primary">Submit</button>
+                <button onClick={handleSubmit} disabled={selected.length !== 4}
+                        className="btn-base btn-primary">Submit
+                </button>
               </>
           ) : (
               <button onClick={() => setShowModal(true)} className="btn-base btn-primary">View Results</button>
@@ -275,11 +308,17 @@ export default function ConnectionsGame() {
                 </div>
                 <button
                     onClick={() => {
-                      const grid = guesses.map(g => g.map(id => ({ 1: "🟨", 2: "🟩", 3: "🟦", 4: "🟪" }[id as 1|2|3|4])).join("")).join("\n");
+                      const grid = guesses.map(g => g.map(id => ({
+                        1: "🟨",
+                        2: "🟩",
+                        3: "🟦",
+                        4: "🟪"
+                      }[id as 1 | 2 | 3 | 4])).join("")).join("\n");
                       navigator.clipboard.writeText(`Skyblock Connections\nPuzzle #${activeBoardNumber}\n${grid}\n\nPlay: https://skyblock-connections.com/`);
                     }}
                     className="btn-base btn-primary share-btn"
-                >Share Result</button>
+                >Share Result
+                </button>
                 <button onClick={() => setShowModal(false)} className="close-modal-text">Close</button>
               </div>
             </div>
@@ -290,15 +329,18 @@ export default function ConnectionsGame() {
             <div className="modal-overlay" onClick={() => setShowSuggestModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <h2 className="modal-title">Suggest Words</h2>
-                <form onSubmit={onSubmitSuggestion} style={{display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px'}}>
-                  <input name="category" placeholder="Category Name" required className="tile-button" style={{textAlign: 'left', padding: '10px'}}/>
+                <form onSubmit={onSubmitSuggestion}
+                      style={{display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px'}}>
+                  <input name="category" placeholder="Category Name" required className="tile-button"
+                         style={{textAlign: 'left', padding: '10px'}}/>
                   <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
-                    <input name="w1" placeholder="Word 1" required className="tile-button" />
-                    <input name="w2" placeholder="Word 2" required className="tile-button" />
-                    <input name="w3" placeholder="Word 3" required className="tile-button" />
-                    <input name="w4" placeholder="Word 4" required className="tile-button" />
+                    <input name="w1" placeholder="Word 1" required className="tile-button"/>
+                    <input name="w2" placeholder="Word 2" required className="tile-button"/>
+                    <input name="w3" placeholder="Word 3" required className="tile-button"/>
+                    <input name="w4" placeholder="Word 4" required className="tile-button"/>
                   </div>
-                  <input name="author" placeholder="Your IGN (Optional)" className="tile-button" style={{textAlign: 'left', padding: '10px'}}/>
+                  <input name="author" placeholder="Your IGN (Optional)" className="tile-button"
+                         style={{textAlign: 'left', padding: '10px'}}/>
                   <button type="submit" disabled={isSending} className="btn-base btn-primary">
                     {isSending ? "Sending..." : "Submit Suggestion"}
                   </button>
@@ -314,14 +356,33 @@ export default function ConnectionsGame() {
             {DEV_MODE && (
                 <>
                   <button
-                      onClick={() => { localStorage.clear(); window.location.reload(); }}
-                      style={{color: '#ff4d4d', fontSize: '0.75rem', background: 'none', border: '1px solid #ff4d4d', padding: '2px 8px', cursor: 'pointer', borderRadius: '4px'}}
+                      onClick={() => {
+                        localStorage.clear();
+                        window.location.reload();
+                      }}
+                      style={{
+                        color: '#ff4d4d',
+                        fontSize: '0.75rem',
+                        background: 'none',
+                        border: '1px solid #ff4d4d',
+                        padding: '2px 8px',
+                        cursor: 'pointer',
+                        borderRadius: '4px'
+                      }}
                   >
                     Nuke Storage
                   </button>
                   <button
                       onClick={generateAndCopyShuffle}
-                      style={{color: '#4dff88', fontSize: '0.75rem', background: 'none', border: '1px solid #4dff88', padding: '2px 8px', cursor: 'pointer', borderRadius: '4px'}}
+                      style={{
+                        color: '#4dff88',
+                        fontSize: '0.75rem',
+                        background: 'none',
+                        border: '1px solid #4dff88',
+                        padding: '2px 8px',
+                        cursor: 'pointer',
+                        borderRadius: '4px'
+                      }}
                   >
                     Gen Shuffle.json
                   </button>
