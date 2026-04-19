@@ -4,11 +4,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Skyblock Connections",
-    description: "Skyblock variant of the New York Times' Connections game",
-    // Embed configuration (Discord, Facebook, etc.)
+    description: "Skyblock variant of New York Times Connections",
     openGraph: {
         title: "Skyblock Connections",
-        description: "Daily word-association puzzle for Hypixel Skyblock players.",
+        description: "Daily word-association puzzle game.",
         url: "https://skyblock-connections.vercel.app", // Replace with your actual domain
         siteName: "Skyblock Connections",
         images: [
