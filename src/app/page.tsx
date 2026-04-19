@@ -7,7 +7,7 @@ import puzzles from '../data/puzzles.json';
 import HowToPlay from "@/src/app/components/HowToPlay";
 
 // --- CONFIGURATION ---
-const DEV_MODE = true; // Set to true to see Dev buttons and skip days on F5
+const DEV_MODE = false; // Set to true to see Dev buttons and skip days on F5
 // ---------------------
 
 export default function ConnectionsGame() {
