@@ -5,11 +5,10 @@ import shuffleMap from '../data/shuffle.json';
  * Grabs the daily puzzle based on a hardcoded shuffle map.
  */
 export const getDailyPuzzle = (boardNumber: number) => {
-  const totalCategories = puzzles.length;
+  const totalCategories = puzzles.length-1;
   const seed = `skyblock-board-${boardNumber}`;
 
   // 1. SELECT CATEGORIES
-  // We go 4 by 4 through the shuffleMap
   const startPos = (boardNumber - 1) * 4;
   const selectedGroups: any[] = [];
   const usedWordsInBoard = new Set<string>();
@@ -19,10 +18,19 @@ export const getDailyPuzzle = (boardNumber: number) => {
     let foundValid = false;
 
     while (!foundValid) {
-      // Use modulo to loop back to the start of shuffleMap if we run out of days
       const mapIndex = (startPos + i + lookAhead) % shuffleMap.length;
       const puzzleIndex = shuffleMap[mapIndex];
-      const category = puzzles[puzzleIndex];
+      const category = (puzzles as any[])[puzzleIndex];
+
+      // --- DIAGNOSTIC LOGGING ---
+      console.log(`[Board ${boardNumber}] Slot ${i}: checking mapIndex ${mapIndex} -> puzzleIndex ${puzzleIndex}`);
+      
+      // Safety Guard: Check if category exists before checking words
+      if (!category) {
+        console.warn(`⚠️ Missing category at puzzles[${puzzleIndex}]. Skipping...`);
+        lookAhead++;
+        continue; // Try the next lookAhead index
+      }
 
       // Standard duplicate word check
       const hasDuplicate = category.words.some((word: string) =>
@@ -34,7 +42,8 @@ export const getDailyPuzzle = (boardNumber: number) => {
         category.words.forEach((w: string) => usedWordsInBoard.add(w.toUpperCase().trim()));
         foundValid = true;
       } else {
-        lookAhead++; // Skip this index and try the next one in the map
+        console.log(`🔄 Duplicate found in category "${category.category}". Skipping...`);
+        lookAhead++; 
       }
     }
   }
