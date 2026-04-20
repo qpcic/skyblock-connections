@@ -110,5 +110,13 @@
   { "id": 109, "category": "HEALTH COST ITEMS", "words": ["BOOK", "FLOWER", "WHEAT", "STICK"] },
   { "id": 110, "category": "SUMMONING", "words": ["GHOUL", "HOE", "SWORD", "RING"] },
   { "id": 111, "category": "NUCLEUS DROPS", "words": ["ALLOY", "FRAGMENT", "MIXTURE", "CLAW"] },
-  { "id": 112, "category": "CRYSTAL HOLLOWS POINTS OF INTEREST", "words": ["TEMPLE", "CITY", "DEN", "MINES"] }
+  { "id": 112, "category": "CRYSTAL HOLLOWS POINTS OF INTEREST", "words": ["TEMPLE", "CITY", "DEN", "MINES"] },
+  { "id": 113, "category": "MINING REFORGE STONES", "words": ["AMBER", "ROCK", "PETRIFIED", "REFINED"] },
+  { "id": 114, "category": "WORDS STARTING WITH BONZO", "words": ["STAFF", "MASK", "BALLOON", "CIRCUS"] },
+  { "id": 115, "category": "NPC NAMES THAT ARE ALSO FLOWERS", "words": ["ROSE", "DAISY", "IRIS", "LILY"] },
+  { "id": 116, "category": "MUSEUM CATEGORIES", "words": ["ARMOR", "WEAPONS", "RARITIES", "SPECIAL"] },
+  { "id": 117, "category": "WORDS THAT COME BEFORE SWORD", "words": ["SPIDER", "GOLEM", "ROUGE", "UNDEAD"] },
+  { "id": 118, "category": "ENCHANTMENTS WITH LEVEL 1 MAX", "words": ["TELEKINESIS", "SILK TOUCH", "REPLENISH", "DELICATE"] },
+  { "id": 119, "category": "ITEMS WITH REAPER IN THE NAME", "words": ["MASK", "SCYTHE", "FALCHION", "PEPPER"] },
+  { "id": 120, "category": "DAMAGE REDUCTION", "words": ["MASK", "TURTLE", "WHALE", "SHELMET"] }
 ]
