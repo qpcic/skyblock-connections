@@ -37,15 +37,47 @@ export default function ConnectionsGame() {
 
   // --- Simple Toast Helper ---
   const showToast = (msg: string) => {
-    // If a toast is already showing, don't interrupt it unless it's a priority message
     if (toastMessage && msg === "Already guessed!") return;
-
     setToastMessage(msg);
-
-    // Auto-hide after 4 seconds
     setTimeout(() => {
       setToastMessage((current) => (current === msg ? null : current));
     }, 4000);
+  };
+
+// --- DEV UTILITIES ---
+  const generateAndCopyShuffle = async () => {
+    // 1. Create a clean array of unique integers [0, 1, 2, ... puzzles.length - 1]
+    const count = puzzles.length;
+    const newShuffle = Array.from({ length: count }, (_, i) => i);
+
+    // 2. Perform Fisher-Yates Shuffle
+    for (let i = newShuffle.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newShuffle[i], newShuffle[j]] = [newShuffle[j], newShuffle[i]];
+    }
+
+    // 3. Final Integrity Check: Ensure 100% uniqueness and correct length
+    const uniqueCheck = new Set(newShuffle);
+    if (uniqueCheck.size !== count) {
+      console.error("Shuffle Error: Duplicate or missing indices detected.");
+      showToast("Error: Shuffle was not unique!");
+      return;
+    }
+
+    // 4. Copy to clipboard
+    const jsonString = JSON.stringify(newShuffle);
+    try {
+      await navigator.clipboard.writeText(jsonString);
+      console.log("New Unique Shuffle:", newShuffle);
+      showToast("Unique Shuffle Copied!");
+    } catch (err) {
+      console.error("Failed to copy!", err);
+      showToast("Failed to copy to clipboard.");
+    }
+  };
+  const nukeStorage = () => {
+    localStorage.clear();
+    window.location.reload();
   };
 
   // 1. Initial Puzzle Load
@@ -143,7 +175,6 @@ export default function ConnectionsGame() {
   const handleSubmit = () => {
     if (selected.length !== 4) return;
 
-    // A. Word-based duplicate check
     const sortedSelected = [...selected].sort();
     const isDuplicate = wordGuesses.some(prevWords => {
       const sortedPrev = [...prevWords].sort();
@@ -155,12 +186,10 @@ export default function ConnectionsGame() {
       return;
     }
 
-    // B. Map Categories
     const selectedTiles = selected.map(word => gameData.tiles.find((t: any) => t.word === word));
     const categoryIds = selectedTiles.map(tile => tile.categoryId);
     const unsortedGuessColors = categoryIds.map(id => idToColorMap[id]);
 
-    // C. Store Guess
     setGuesses(prev => [...prev, unsortedGuessColors]);
     setWordGuesses(prev => [...prev, selected]);
 
@@ -172,7 +201,6 @@ export default function ConnectionsGame() {
       setCompletedGroups([...completedGroups, correctGroup]);
       setSelected([]);
     } else {
-      // D. One Away Logic
       const counts: Record<number, number> = {};
       categoryIds.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
       const isOneOff = Object.values(counts).some(count => count === 3);
@@ -200,6 +228,21 @@ export default function ConnectionsGame() {
       setShowSuggestModal(false);
       alert("Sent!");
     }
+  };
+
+  // --- Styled Dev Button Helper ---
+  const devButtonStyle: React.CSSProperties = {
+    padding: '4px 10px',
+    fontSize: '0.7rem',
+    borderRadius: '6px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    background: 'rgba(0, 0, 0, 0.0)',
+    color: '#aaa',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    fontWeight: 'bold'
   };
 
   return (
@@ -321,9 +364,30 @@ export default function ConnectionsGame() {
             </div>
         )}
 
-        <footer className="footer-container">
-          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap'}}>
-            <span>© {new Date().getFullYear()} | qpcic</span>
+        <footer className="footer-container" style={{ marginTop: '40px', paddingBottom: '20px' }}>
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px'}}>
+            <span style={{ fontSize: '0.9rem', opacity: 0.6 }}>© {new Date().getFullYear()} | qpcic</span>
+
+            {DEV_MODE && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                      onClick={nukeStorage}
+                      style={{ ...devButtonStyle, color: '#aa0000', borderColor: 'rgba(0,0,0, 0.9)' }}
+                      onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(255, 107, 107, 0.1)')}
+                      onMouseOut={(e) => (e.currentTarget.style.background = 'rgba(0, 0, 0, 0.3)')}
+                  >
+                    Nuke Storage
+                  </button>
+                  <button
+                      onClick={generateAndCopyShuffle}
+                      style={{ ...devButtonStyle, color: '#00aa00', borderColor: 'rgba(0,0,0, 0.9)' }}
+                      onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(81, 207, 102, 0.1)')}
+                      onMouseOut={(e) => (e.currentTarget.style.background = 'rgba(0, 0, 0, 0.3)')}
+                  >
+                    Gen Shuffle.json
+                  </button>
+                </div>
+            )}
           </div>
         </footer>
 

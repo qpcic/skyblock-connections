@@ -39,6 +39,7 @@ export const getDailyPuzzle = (boardNumber: number) => {
 
       if (!hasDuplicate) {
         selectedGroups.push(category);
+        console.warn(`Selected category: "${category.category}"`);
         category.words.forEach((w: string) => usedWordsInBoard.add(w.toUpperCase().trim()));
         foundValid = true;
       } else {
