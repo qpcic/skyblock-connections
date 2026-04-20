@@ -93,7 +93,7 @@
   { "id": 92, "category": "PEST CHANCE SOURCES", "words": ["BANDANA", "LARVA", "VEST", "SLUG"] },
   { "id": 93, "category": "DIAZ SPECIAL", "words": ["CHESTPLATE", "HOE", "SANDWICH", "CUBE"] },
   { "id": 94, "category": "DAMAGE ENCHANTS", "words": ["SHARPNESS", "SMITE", "CUBISM", "BANE"] },
-  { "id": 95, "category": "PET LUCK", "words": ["TAMING", "DIANA", "URN", "SUPERIOR"] },
+  { "id": 95, "category": "PET LUCK", "words": ["TAMING", "DIANA", "URN", "SUPERIOR DRAGON ARMOR"] },
   { "id": 96, "category": "SKELETON MOBS", "words": ["GRUNT", "MASTER", "SOLDIER", "LORD"] },
   { "id": 97, "category": "ENCHANT UPGRADE ITEMS", "words": ["CHAIN", "BUBBLE", "IDOL", "SNAIL"] },
   { "id": 98, "category": "COMPOSTER", "words": ["FUEL", "CROPS", "UPGRADES", "SAM"] },

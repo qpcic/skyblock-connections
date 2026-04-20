@@ -305,7 +305,6 @@ h1 {
 
 /* --- 8. FOOTER & MISC --- */
 .footer-container {
-  padding: 30px 0;
   display: flex;
   justify-content: center;
   font-size: 0.9rem;
@@ -401,7 +400,7 @@ h1 {
 
 /* --- 8. FOOTER & MEDIA QUERIES --- */
 .footer-container {
-  padding: 40px 0;
+  padding: 0;
   display: flex;
   justify-content: center;
   font-size: 0.9rem;
@@ -468,4 +467,18 @@ h1 {
 /* Make the word inputs slightly shorter to save more space */
 .word-grid .suggest-input {
   padding: 8px 10px;
+}
+
+/* Example inside your CSS file */
+.guessed-toast { /* or whatever your class name is */
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* Change this from 10% or 20px to something higher */
+  bottom: 50%; /* This puts it in the middle of the screen */
+  /* OR */
+  top: 100px; /* This puts it near the top */
+
+  z-index: 1000;
 }

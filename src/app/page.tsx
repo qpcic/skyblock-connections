@@ -5,10 +5,9 @@ import { getDailyPuzzle } from '../lib/gameLogic';
 import { sendToDiscord } from './submit/actions';
 import puzzles from '../data/puzzles.json';
 import HowToPlay from "@/src/app/components/HowToPlay";
+import GuessedToast from "@/src/app/components/GuessedToast";
 
-// --- CONFIGURATION ---
-const DEV_MODE = process.env.NEXT_PUBLIC_DEV_MODE === 'true'; // Set to true to see Dev buttons and skip days on F5
-// ---------------------
+const DEV_MODE = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
 
 export default function ConnectionsGame() {
   const [gameData, setGameData] = useState<any>(null);
@@ -20,71 +19,38 @@ export default function ConnectionsGame() {
   const [showModal, setShowModal] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [wordGuesses, setWordGuesses] = useState<string[][]>([]);
+
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // --- Board Number Calculation ---
+  // --- Board Logic ---
   const startDate = new Date('2026-04-19T00:00:00');
   const today = new Date();
   startDate.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
-
   const diffTime = Math.abs(today.getTime() - startDate.getTime());
   const realBoardNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
   const [activeBoardNumber, setActiveBoardNumber] = useState(realBoardNumber);
+  const formattedDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-  const formattedDate = today.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  });
+  // --- Simple Toast Helper ---
+  const showToast = (msg: string) => {
+    // If a toast is already showing, don't interrupt it unless it's a priority message
+    if (toastMessage && msg === "Already guessed!") return;
 
-  // --- DEV UTILITY: Generate static shuffle file ---
-  // --- Inside ConnectionsGame component ---
+    setToastMessage(msg);
 
-// --- DEV UTILITY: Generate static shuffle and copy to clipboard ---
-  const generateAndCopyShuffle = async () => {
-    const count = puzzles.length;
-    const newShuffle = Array.from({ length: count }, (_, i) => i);
-
-    // Scramble the indices
-    for (let i = newShuffle.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newShuffle[i], newShuffle[j]] = [newShuffle[j], newShuffle[i]];
-    }
-
-    const jsonString = JSON.stringify(newShuffle);
-
-    try {
-      await navigator.clipboard.writeText(jsonString);
-      //alert("Shuffle JSON copied to clipboard! Paste it into your shuffle.json file.");
-    } catch (err) {
-      console.error("Failed to copy!", err);
-      alert("Failed to copy to clipboard. Check console.");
-    }
+    // Auto-hide after 4 seconds
+    setTimeout(() => {
+      setToastMessage((current) => (current === msg ? null : current));
+    }, 4000);
   };
-
-// --- In your Footer (inside the DEV_MODE block) ---
-  <button
-      onClick={generateAndCopyShuffle}
-      style={{
-        color: '#4dff88',
-        fontSize: '0.75rem',
-        background: 'none',
-        border: '1px solid #4dff88',
-        padding: '2px 8px',
-        cursor: 'pointer',
-        borderRadius: '4px'
-      }}
-  >
-    Copy Shuffle.json
-  </button>
 
   // 1. Initial Puzzle Load
   useEffect(() => {
     let currentBoard = realBoardNumber;
-
     if (DEV_MODE) {
       const devOffsetKey = 'skyblock-dev-offset';
       const savedOffset = parseInt(localStorage.getItem(devOffsetKey) || "0");
@@ -94,7 +60,6 @@ export default function ConnectionsGame() {
       setActiveBoardNumber(currentBoard);
     }
 
-    // Now logic handles the shuffle internally via shuffle.json
     const data = getDailyPuzzle(currentBoard);
     setGameData(data);
 
@@ -106,41 +71,36 @@ export default function ConnectionsGame() {
 
     const saved = localStorage.getItem(`skyblock-progress-${currentBoard}`);
     if (saved) {
-      const { savedSelected, savedCompleted, savedMistakes, savedGuesses } = JSON.parse(saved);
+      const { savedSelected, savedCompleted, savedMistakes, savedGuesses, savedWordGuesses } = JSON.parse(saved);
       if (savedSelected) setSelected(savedSelected);
       if (savedCompleted) setCompletedGroups(savedCompleted);
       if (savedMistakes !== undefined) setMistakes(savedMistakes);
       if (savedGuesses) setGuesses(savedGuesses);
+      if (savedWordGuesses) setWordGuesses(savedWordGuesses);
     }
     setIsLoaded(true);
   }, [realBoardNumber]);
 
+  // Timer logic
   const [timeLeft, setTimeLeft] = useState("");
-
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
       const tomorrow = new Date(now);
       tomorrow.setDate(tomorrow.getDate() + 1);
       tomorrow.setHours(0, 0, 0, 0);
-
       const diff = tomorrow.getTime() - now.getTime();
-
       const h = Math.floor(diff / (1000 * 60 * 60));
       const m = Math.floor((diff / (1000 * 60)) % 60);
       const s = Math.floor((diff / 1000) % 60);
-
-      // Formats to 00:00:00
       setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
     };
-
     const timerId = setInterval(updateTimer, 1000);
-    updateTimer(); // Initial call
-
+    updateTimer();
     return () => clearInterval(timerId);
   }, []);
 
-  // 2. Save Progress
+  // Save Progress
   useEffect(() => {
     if (isLoaded) {
       const progress = {
@@ -148,10 +108,11 @@ export default function ConnectionsGame() {
         savedCompleted: completedGroups,
         savedMistakes: mistakes,
         savedGuesses: guesses,
+        savedWordGuesses: wordGuesses,
       };
       localStorage.setItem(`skyblock-progress-${activeBoardNumber}`, JSON.stringify(progress));
     }
-  }, [selected, completedGroups, mistakes, guesses, activeBoardNumber, isLoaded]);
+  }, [selected, completedGroups, mistakes, guesses, wordGuesses, activeBoardNumber, isLoaded]);
 
   const isGameOver = mistakes === 0 || completedGroups.length === 4;
 
@@ -181,21 +142,45 @@ export default function ConnectionsGame() {
 
   const handleSubmit = () => {
     if (selected.length !== 4) return;
-    const currentGuessColors = selected.map(word => {
-      const tile = gameData.tiles.find((t: any) => t.word === word);
-      return idToColorMap[tile.categoryId];
+
+    // A. Word-based duplicate check
+    const sortedSelected = [...selected].sort();
+    const isDuplicate = wordGuesses.some(prevWords => {
+      const sortedPrev = [...prevWords].sort();
+      return sortedPrev.every((word, i) => word === sortedSelected[i]);
     });
-    setGuesses(prev => [...prev, currentGuessColors]);
-    const firstWordTile = gameData.tiles.find((t: any) => t.word === selected[0]);
-    const isCorrect = selected.every(word => {
-      const tile = gameData.tiles.find((t: any) => t.word === word);
-      return tile.categoryId === firstWordTile.categoryId;
-    });
+
+    if (isDuplicate) {
+      showToast("Already guessed!");
+      return;
+    }
+
+    // B. Map Categories
+    const selectedTiles = selected.map(word => gameData.tiles.find((t: any) => t.word === word));
+    const categoryIds = selectedTiles.map(tile => tile.categoryId);
+    const unsortedGuessColors = categoryIds.map(id => idToColorMap[id]);
+
+    // C. Store Guess
+    setGuesses(prev => [...prev, unsortedGuessColors]);
+    setWordGuesses(prev => [...prev, selected]);
+
+    const firstId = categoryIds[0];
+    const isCorrect = categoryIds.every(id => id === firstId);
+
     if (isCorrect) {
-      const correctGroup = gameData.groups.find((g: any) => g.id === firstWordTile.categoryId);
+      const correctGroup = gameData.groups.find((g: any) => g.id === firstId);
       setCompletedGroups([...completedGroups, correctGroup]);
       setSelected([]);
     } else {
+      // D. One Away Logic
+      const counts: Record<number, number> = {};
+      categoryIds.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+      const isOneOff = Object.values(counts).some(count => count === 3);
+
+      if (isOneOff) {
+        showToast("One away...");
+      }
+
       setMistakes(prev => Math.max(0, prev - 1));
     }
   };
@@ -224,10 +209,7 @@ export default function ConnectionsGame() {
         <div style={{textAlign: 'center', marginBottom: '20px', fontSize: '1.1rem', fontWeight: '500', opacity: 0.9}}>
           {formattedDate} | Board #{activeBoardNumber}
           {DEV_MODE && <span style={{color: '#ff4d4d'}}> (DEV)</span>}
-
-          <span style={{}}>
-     , Next in: <span style={{}}>{timeLeft}</span>
-  </span>
+          <span>, Next in: {timeLeft}</span>
         </div>
 
         <div className="mistakes-container">
@@ -273,12 +255,9 @@ export default function ConnectionsGame() {
                       setGameData({...gameData, tiles: shuffled});
                     }}
                     className="btn-base btn-secondary"
-                >Shuffle
-                </button>
+                >Shuffle</button>
                 <button onClick={() => setSelected([])} className="btn-base btn-secondary">Deselect</button>
-                <button onClick={handleSubmit} disabled={selected.length !== 4}
-                        className="btn-base btn-primary">Submit
-                </button>
+                <button onClick={handleSubmit} disabled={selected.length !== 4} className="btn-base btn-primary">Submit</button>
               </>
           ) : (
               <button onClick={() => setShowModal(true)} className="btn-base btn-primary">View Results</button>
@@ -289,7 +268,6 @@ export default function ConnectionsGame() {
           {mistakes === 0 && <div className="game-over-text">Game Over!</div>}
           {remainingTiles.length === 0 && completedGroups.length === 4 && <div className="win-text">Perfect!</div>}
         </div>
-
 
         {/* RESULTS MODAL */}
         {showModal && (
@@ -309,100 +287,47 @@ export default function ConnectionsGame() {
                 <button
                     onClick={() => {
                       const grid = guesses.map(g => g.map(id => ({
-                        1: "🟨",
-                        2: "🟩",
-                        3: "🟦",
-                        4: "🟪"
+                        1: "🟨", 2: "🟩", 3: "🟦", 4: "🟪"
                       }[id as 1 | 2 | 3 | 4])).join("")).join("\n");
                       navigator.clipboard.writeText(`Skyblock Connections\nPuzzle #${activeBoardNumber}\n${grid}\n\nPlay: https://skyblock-connections.com/`);
                     }}
                     className="btn-base btn-primary share-btn"
-                >Share Result
-                </button>
+                >Share Result</button>
                 <button onClick={() => setShowModal(false)} className="btn-base btn-secondary">Close</button>
               </div>
             </div>
         )}
 
-       {/* SUGGESTION MODAL */}
-{showSuggestModal && (
-  <div className="modal-overlay" onClick={() => setShowSuggestModal(false)}>
-    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-      <h2 className="modal-title" style={{ fontSize: '28px', marginBottom: '5px' }}>Suggest words</h2>
-      
-      <form onSubmit={onSubmitSuggestion} className="suggest-form">
-        <input 
-          name="category" 
-          placeholder="Category Name" 
-          required 
-          className="suggest-input" 
-        />
-        
-        <div className="word-grid">
-          <input name="w1" placeholder="Word 1" required className="suggest-input" />
-          <input name="w2" placeholder="Word 2" required className="suggest-input" />
-          <input name="w3" placeholder="Word 3" required className="suggest-input" />
-          <input name="w4" placeholder="Word 4" required className="suggest-input" />
-        </div>
-        
-        <input 
-          name="author" 
-          placeholder="Your IGN (Optional)" 
-          className="suggest-input" 
-        />
-        
-        <button type="submit" disabled={isSending} className="btn-base btn-primary" style={{ marginTop: '5px' }}>
-          {isSending ? "Sending..." : "Submit Suggestion"}
-        </button>
-      </form>
-      
-      <button onClick={() => setShowSuggestModal(false)} className="close-modal-text">
-        Cancel
-      </button>
-    </div>
-  </div>
-)}
+        {/* SUGGESTION MODAL */}
+        {showSuggestModal && (
+            <div className="modal-overlay" onClick={() => setShowSuggestModal(false)}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <h2 className="modal-title" style={{ fontSize: '28px', marginBottom: '5px' }}>Suggest words</h2>
+                <form onSubmit={onSubmitSuggestion} className="suggest-form">
+                  <input name="category" placeholder="Category Name" required className="suggest-input" />
+                  <div className="word-grid">
+                    <input name="w1" placeholder="Word 1" required className="suggest-input" />
+                    <input name="w2" placeholder="Word 2" required className="suggest-input" />
+                    <input name="w3" placeholder="Word 3" required className="suggest-input" />
+                    <input name="w4" placeholder="Word 4" required className="suggest-input" />
+                  </div>
+                  <input name="author" placeholder="Your IGN (Optional)" className="suggest-input" />
+                  <button type="submit" disabled={isSending} className="btn-base btn-primary" style={{ marginTop: '5px' }}>
+                    {isSending ? "Sending..." : "Submit Suggestion"}
+                  </button>
+                </form>
+                <button onClick={() => setShowSuggestModal(false)} className="close-modal-text">Cancel</button>
+              </div>
+            </div>
+        )}
 
-        <footer className="footer-container" style={{marginTop: '40px'}}>
+        <footer className="footer-container">
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap'}}>
             <span>© {new Date().getFullYear()} | qpcic</span>
-            {DEV_MODE && (
-                <>
-                  <button
-                      onClick={() => {
-                        localStorage.clear();
-                        window.location.reload();
-                      }}
-                      style={{
-                        color: '#ff4d4d',
-                        fontSize: '0.75rem',
-                        background: 'none',
-                        border: '1px solid #ff4d4d',
-                        padding: '2px 8px',
-                        cursor: 'pointer',
-                        borderRadius: '4px'
-                      }}
-                  >
-                    Nuke Storage
-                  </button>
-                  <button
-                      onClick={generateAndCopyShuffle}
-                      style={{
-                        color: '#4dff88',
-                        fontSize: '0.75rem',
-                        background: 'none',
-                        border: '1px solid #4dff88',
-                        padding: '2px 8px',
-                        cursor: 'pointer',
-                        borderRadius: '4px'
-                      }}
-                  >
-                    Gen Shuffle.json
-                  </button>
-                </>
-            )}
           </div>
         </footer>
+
+        <GuessedToast message={toastMessage} />
       </main>
   );
 }
