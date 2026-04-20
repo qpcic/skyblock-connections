@@ -264,7 +264,7 @@ export default function ConnectionsGame() {
         </div>
 
         <div className="controls">
-          <button onClick={() => setShowSuggestModal(true)} className="btn-base btn-secondary">Suggest</button>
+          <button onClick={() => setShowSuggestModal(true)} className="btn-base btn-secondary">Suggest words</button>
           {!isGameOver ? (
               <>
                 <button
@@ -319,36 +319,49 @@ export default function ConnectionsGame() {
                     className="btn-base btn-primary share-btn"
                 >Share Result
                 </button>
-                <button onClick={() => setShowModal(false)} className="close-modal-text">Close</button>
+                <button onClick={() => setShowModal(false)} className="btn-base btn-secondary">Close</button>
               </div>
             </div>
         )}
 
-        {/* SUGGESTION MODAL */}
-        {showSuggestModal && (
-            <div className="modal-overlay" onClick={() => setShowSuggestModal(false)}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <h2 className="modal-title">Suggest Words</h2>
-                <form onSubmit={onSubmitSuggestion}
-                      style={{display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px'}}>
-                  <input name="category" placeholder="Category Name" required className="tile-button"
-                         style={{textAlign: 'left', padding: '10px'}}/>
-                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
-                    <input name="w1" placeholder="Word 1" required className="tile-button"/>
-                    <input name="w2" placeholder="Word 2" required className="tile-button"/>
-                    <input name="w3" placeholder="Word 3" required className="tile-button"/>
-                    <input name="w4" placeholder="Word 4" required className="tile-button"/>
-                  </div>
-                  <input name="author" placeholder="Your IGN (Optional)" className="tile-button"
-                         style={{textAlign: 'left', padding: '10px'}}/>
-                  <button type="submit" disabled={isSending} className="btn-base btn-primary">
-                    {isSending ? "Sending..." : "Submit Suggestion"}
-                  </button>
-                </form>
-                <button onClick={() => setShowSuggestModal(false)} className="close-modal-text">Cancel</button>
-              </div>
-            </div>
-        )}
+       {/* SUGGESTION MODAL */}
+{showSuggestModal && (
+  <div className="modal-overlay" onClick={() => setShowSuggestModal(false)}>
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <h2 className="modal-title" style={{ fontSize: '28px', marginBottom: '5px' }}>Suggest words</h2>
+      
+      <form onSubmit={onSubmitSuggestion} className="suggest-form">
+        <input 
+          name="category" 
+          placeholder="Category Name" 
+          required 
+          className="suggest-input" 
+        />
+        
+        <div className="word-grid">
+          <input name="w1" placeholder="Word 1" required className="suggest-input" />
+          <input name="w2" placeholder="Word 2" required className="suggest-input" />
+          <input name="w3" placeholder="Word 3" required className="suggest-input" />
+          <input name="w4" placeholder="Word 4" required className="suggest-input" />
+        </div>
+        
+        <input 
+          name="author" 
+          placeholder="Your IGN (Optional)" 
+          className="suggest-input" 
+        />
+        
+        <button type="submit" disabled={isSending} className="btn-base btn-primary" style={{ marginTop: '5px' }}>
+          {isSending ? "Sending..." : "Submit Suggestion"}
+        </button>
+      </form>
+      
+      <button onClick={() => setShowSuggestModal(false)} className="close-modal-text">
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
 
         <footer className="footer-container" style={{marginTop: '40px'}}>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap'}}>
