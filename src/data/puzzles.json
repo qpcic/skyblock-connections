@@ -118,5 +118,6 @@
   { "id": 117, "category": "WORDS THAT COME BEFORE SWORD", "words": ["SPIDER", "GOLEM", "ROUGE", "UNDEAD"] },
   { "id": 118, "category": "ENCHANTMENTS WITH LEVEL 1 MAX", "words": ["TELEKINESIS", "SILK TOUCH", "REPLENISH", "DELICATE"] },
   { "id": 119, "category": "ITEMS WITH REAPER IN THE NAME", "words": ["MASK", "SCYTHE", "FALCHION", "PEPPER"] },
-  { "id": 120, "category": "DAMAGE REDUCTION", "words": ["MASK", "TURTLE", "WHALE", "SHELMET"] }
+  { "id": 120, "category": "DAMAGE REDUCTION", "words": ["MASK", "TURTLE", "WHALE", "SHELMET"] },
+  { "id": 121, "category": "CRYSTAL HOLLOWS POINTS OF INTEREST", "words": ["TEMPLE", "CITY", "DEN", "MINES"] }
 ]
