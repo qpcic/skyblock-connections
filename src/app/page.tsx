@@ -25,15 +25,21 @@ export default function ConnectionsGame() {
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // --- Board Logic ---
-  const startDate = new Date('2026-04-19T00:00:00');
-  const today = new Date();
+  // --- Ljubljana Time Logic ---
+  const getLjTime = () => new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Ljubljana" }));
+
+  const ljNow = getLjTime();
+  const ljTodayAtMidnight = new Date(ljNow);
+  ljTodayAtMidnight.setHours(0, 0, 0, 0);
+
+  const startDate = new Date(new Date('2026-04-19T00:00:00').toLocaleString("en-US", { timeZone: "Europe/Ljubljana" }));
   startDate.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  const diffTime = Math.abs(today.getTime() - startDate.getTime());
+
+  const diffTime = ljTodayAtMidnight.getTime() - startDate.getTime();
   const realBoardNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
   const [activeBoardNumber, setActiveBoardNumber] = useState(realBoardNumber);
-  const formattedDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const formattedDate = ljNow.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
   // --- Simple Toast Helper ---
   const showToast = (msg: string) => {
@@ -44,37 +50,28 @@ export default function ConnectionsGame() {
     }, 4000);
   };
 
-// --- DEV UTILITIES ---
+  // --- DEV UTILITIES ---
   const generateAndCopyShuffle = async () => {
-    // 1. Create a clean array of unique integers [0, 1, 2, ... puzzles.length - 1]
     const count = puzzles.length;
     const newShuffle = Array.from({ length: count }, (_, i) => i);
-
-    // 2. Perform Fisher-Yates Shuffle
     for (let i = newShuffle.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [newShuffle[i], newShuffle[j]] = [newShuffle[j], newShuffle[i]];
     }
-
-    // 3. Final Integrity Check: Ensure 100% uniqueness and correct length
     const uniqueCheck = new Set(newShuffle);
     if (uniqueCheck.size !== count) {
-      console.error("Shuffle Error: Duplicate or missing indices detected.");
       showToast("Error: Shuffle was not unique!");
       return;
     }
-
-    // 4. Copy to clipboard
     const jsonString = JSON.stringify(newShuffle);
     try {
       await navigator.clipboard.writeText(jsonString);
-      console.log("New Unique Shuffle:", newShuffle);
       showToast("Unique Shuffle Copied!");
     } catch (err) {
-      console.error("Failed to copy!", err);
       showToast("Failed to copy to clipboard.");
     }
   };
+
   const nukeStorage = () => {
     localStorage.clear();
     window.location.reload();
@@ -113,15 +110,16 @@ export default function ConnectionsGame() {
     setIsLoaded(true);
   }, [realBoardNumber]);
 
-  // Timer logic
+  // Timer logic (Ljubljana Based)
   const [timeLeft, setTimeLeft] = useState("");
   useEffect(() => {
     const updateTimer = () => {
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      const diff = tomorrow.getTime() - now.getTime();
+      const nowLj = getLjTime();
+      const tomorrowLj = new Date(nowLj);
+      tomorrowLj.setDate(tomorrowLj.getDate() + 1);
+      tomorrowLj.setHours(0, 0, 0, 0);
+
+      const diff = tomorrowLj.getTime() - nowLj.getTime();
       const h = Math.floor(diff / (1000 * 60 * 60));
       const m = Math.floor((diff / (1000 * 60)) % 60);
       const s = Math.floor((diff / 1000) % 60);
@@ -230,39 +228,31 @@ export default function ConnectionsGame() {
     }
   };
 
-  // --- Styled Dev Button Helper ---
   const devButtonStyle: React.CSSProperties = {
-    padding: '4px 10px',
-    fontSize: '0.7rem',
-    borderRadius: '6px',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    background: 'rgba(0, 0, 0, 0.0)',
-    color: '#aaa',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-    fontWeight: 'bold'
+    padding: '4px 10px', fontSize: '0.7rem', borderRadius: '6px',
+    border: '1px solid rgba(255, 255, 255, 0.2)', background: 'rgba(0, 0, 0, 0.0)',
+    color: '#aaa', cursor: 'pointer', transition: 'all 0.2s',
+    textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 'bold'
   };
 
   return (
       <main className="main-wrapper">
         <h1 className="maintitle">Skyblock Connections</h1>
 
-        <div style={{textAlign: 'center', marginBottom: '20px', fontSize: '1.1rem', fontWeight: '500', opacity: 0.9}}>
+        <div style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.1rem', fontWeight: '500', opacity: 0.9 }}>
           {formattedDate} | Board #{activeBoardNumber}
-          {DEV_MODE && <span style={{color: '#ff4d4d'}}> (DEV)</span>}
-          <span>, Next in: {timeLeft}</span>
+          {DEV_MODE && <span style={{ color: '#ff4d4d' }}> (DEV)</span>}
+          <span> | Next Puzzle in: <span>{timeLeft}</span></span>
         </div>
 
         <div className="mistakes-container">
           <span className="mistakes-label">Lives:</span>
           <div className="dots-row">
             {[...Array(4)].map((_, i) => (
-                <div key={i} className={`mistake-dot ${i < mistakes ? 'filled' : 'empty'}`}/>
+                <div key={i} className={`mistake-dot ${i < mistakes ? 'filled' : 'empty'}`} />
             ))}
           </div>
-          <HowToPlay/>
+          <HowToPlay />
         </div>
 
         <div className="game-container">
@@ -295,7 +285,7 @@ export default function ConnectionsGame() {
                 <button
                     onClick={() => {
                       const shuffled = [...gameData.tiles].sort(() => Math.random() - 0.5);
-                      setGameData({...gameData, tiles: shuffled});
+                      setGameData({ ...gameData, tiles: shuffled });
                     }}
                     className="btn-base btn-secondary"
                 >Shuffle</button>
@@ -321,7 +311,7 @@ export default function ConnectionsGame() {
                   {guesses.map((guess, i) => (
                       <div key={i} className="emoji-row">
                         {guess.map((id, j) => {
-                          const map: Record<number, string> = {1: "🟨", 2: "🟩", 3: "🟦", 4: "🟪"};
+                          const map: Record<number, string> = { 1: "🟨", 2: "🟩", 3: "🟦", 4: "🟪" };
                           return <span key={j}>{map[id] || "⬛"}</span>;
                         })}
                       </div>
@@ -365,32 +355,16 @@ export default function ConnectionsGame() {
         )}
 
         <footer className="footer-container" style={{ marginTop: '40px', paddingBottom: '20px' }}>
-          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px'}}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
             <span style={{ fontSize: '0.9rem', opacity: 0.6 }}>© {new Date().getFullYear()} | qpcic</span>
-
             {DEV_MODE && (
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                      onClick={nukeStorage}
-                      style={{ ...devButtonStyle, color: '#aa0000', borderColor: 'rgba(0,0,0, 0.9)' }}
-                      onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(255, 107, 107, 0.1)')}
-                      onMouseOut={(e) => (e.currentTarget.style.background = 'rgba(0, 0, 0, 0.3)')}
-                  >
-                    Nuke Storage
-                  </button>
-                  <button
-                      onClick={generateAndCopyShuffle}
-                      style={{ ...devButtonStyle, color: '#00aa00', borderColor: 'rgba(0,0,0, 0.9)' }}
-                      onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(81, 207, 102, 0.1)')}
-                      onMouseOut={(e) => (e.currentTarget.style.background = 'rgba(0, 0, 0, 0.3)')}
-                  >
-                    Gen Shuffle.json
-                  </button>
+                  <button onClick={nukeStorage} style={{ ...devButtonStyle, color: '#aa0000', borderColor: 'rgba(0,0,0, 0.9)' }}>Nuke Storage</button>
+                  <button onClick={generateAndCopyShuffle} style={{ ...devButtonStyle, color: '#00aa00', borderColor: 'rgba(0,0,0, 0.9)' }}>Gen Shuffle.json</button>
                 </div>
             )}
           </div>
         </footer>
-
         <GuessedToast message={toastMessage} />
       </main>
   );
