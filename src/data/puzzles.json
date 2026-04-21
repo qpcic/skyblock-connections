@@ -57,7 +57,7 @@
   { "id": 56, "category": "WISDOM PETS", "words": ["SQUID", "WOLF", "RABBIT", "OCELOT"] },
   { "id": 57, "category": "IRONMAN", "words": ["TRADING", "BAZAAR", "AUCTION", "COMPLAIN"] },
   { "id": 58, "category": "SHIELDED MOBS", "words": ["JERRY", "GOBLIN", "SCATHA", "SENTRY"] },
-  { "id": 59, "category": "ELUSIVE", "words": ["VANQUISHER", "MOUSE", "CHICKEN", "ZEALOT"] },
+  { "id": 59, "category": "ELUSIVE", "words": ["VANQUISHER", "FIELD MOUSE", "INQUISITOR", "ZEALOT"] },
   { "id": 60, "category": "DEFENSE", "words": ["TRUE", "TURTLE", "TANK", "PROTECTION"] },
   { "id": 61, "category": "KUUDRA", "words": ["PLAQUE", "ISLE", "TIER", "BOSS"] },
   { "id": 62, "category": "LEAGUE REFERENCES", "words": ["RUNAAN", "AATROX", "LAST BREATH", "SPIRIT MASK"] },
@@ -110,5 +110,9 @@
   { "id": 109, "category": "HEALTH COST ITEMS", "words": ["BOOK", "FLOWER", "WHEAT", "STICK"] },
   { "id": 110, "category": "SUMMONING", "words": ["GHOUL", "HOE", "SWORD", "RING"] },
   { "id": 111, "category": "NUCLEUS DROPS", "words": ["ALLOY", "FRAGMENT", "MIXTURE", "CLAW"] },
-  { "id": 112, "category": "CRYSTAL HOLLOWS POINTS OF INTEREST", "words": ["TEMPLE", "CITY", "DEN", "MINES"] }
+  { "id": 112, "category": "CRYSTAL HOLLOWS POINTS OF INTEREST", "words": ["TEMPLE", "CITY", "DEN", "MINES"] },
+  { "id": 113, "category": "ITEMS WITH REAPER IN THE NAME", "words": ["MASK", "SCYTHE", "FALCHION", "PEPPER"] },
+  { "id": 114, "category": "MUSEUM CATEGORIES", "words": ["ARMOR", "WEAPONS", "RARITIES", "SPECIAL"] },
+  { "id": 115, "category": "TREE GIFTS", "words": ["BOOSTER", "CHAMELEON", "MISSILE I", "FOREST ESSENCE"] },
+  { "id": 116, "category": "ECHO OF", "words": ["ECHOES", "WISDOM", "ELEMENTAL", "ATOMIZED"] }
 ]
