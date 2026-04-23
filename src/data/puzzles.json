@@ -31,7 +31,7 @@
   { "id": 30, "category": "OMELETTE", "words": ["PESTO", "BLUE", "SUNNY", "SPICY"] },
   { "id": 31, "category": "DUNGEON BOSSES", "words": ["GHAST", "WITHER", "CLOWN", "GUARDIAN"] },
   { "id": 32, "category": "SPEED", "words": ["YOUNG", "CANE", "RACING", "CAT"] },
-  { "id": 33, "category": "ACCESSORY BAG", "words": ["COLLECTION", "MINER", "JACOBUS", "ELIZABETH"] },
+  { "id": 33, "category": "ACCESSORY BAG", "words": ["COLLECTION", "REDSTONE MINER", "JACOBUS", "ELIZABETH"] },
   { "id": 34, "category": "KAT", "words": ["FLOWER", "PET", "RARITY", "NPC"] },
   { "id": 35, "category": "DARK AUCTION", "words": ["MINION", "ARTIFACT", "PAINTING", "PLASMA"] },
   { "id": 36, "category": "INFERNO DEMONLORD", "words": ["DEMON", "DAGGER", "NETHER", "BOSS"] },
