@@ -17,7 +17,7 @@
   { "id": 16, "category": "GHAST", "words": ["POWDER", "DIVE", "TEAR", "CLOAK"] },
   { "id": 17, "category": "VANQUISHED", "words": ["ROD", "TEAR", "CREAM", "GLOWSTONE"] },
   { "id": 18, "category": "MOUNTS", "words": ["PIG", "HORSE", "ROCK", "ARMADILLO"] },
-  { "id": 19, "category": "HUNTING BOX", "words": ["HOOK", "WEB", "AXE", "TRAP"] },
+  { "id": 19, "category": "HUNTING BOX", "words": ["TRIPWIRE HOOK", "WEB", "AXE", "TRAP"] },
   { "id": 20, "category": "FORGE", "words": ["MOLTEN", "QUICK", "COOLED", "KINETIC"] },
   { "id": 21, "category": "MITHRIL DEPOSITS", "words": ["JADE", "POKEMON", "DETECTOR", "HOLLOWS"] },
   { "id": 22, "category": "JUNGLE", "words": ["SLUDGE", "THYST", "SPEAR", "KEY"] },
