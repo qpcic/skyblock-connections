@@ -18,7 +18,7 @@
   { "id": 17, "category": "VANQUISHED", "words": ["ROD", "TEAR", "CREAM", "GLOWSTONE"] },
   { "id": 18, "category": "MOUNTS", "words": ["PIG", "HORSE", "ROCK", "ARMADILLO"] },
   { "id": 19, "category": "HUNTING BOX", "words": ["TRIPWIRE HOOK", "WEB", "AXE", "TRAP"] },
-  { "id": 20, "category": "FORGE", "words": ["MOLTEN", "QUICK", "COOLED", "KINETIC"] },
+  { "id": 20, "category": "FORGE", "words": ["MOLTEN", "QUICK", "COOLED", "SLOTS"] },
   { "id": 21, "category": "MITHRIL DEPOSITS", "words": ["JADE", "DRAGON EGGS", "DETECTOR", "HOLLOWS"] },
   { "id": 22, "category": "JUNGLE", "words": ["SLUDGE", "THYST", "SPEAR", "KEY"] },
   { "id": 23, "category": "STAT BOOKS", "words": ["WET", "POLAR", "DUMMIES", "WAR"] },
