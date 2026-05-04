@@ -7,7 +7,10 @@ import puzzles from '../data/puzzles.json';
 import HowToPlay from "@/src/app/components/HowToPlay";
 import GuessedToast from "@/src/app/components/GuessedToast";
 
-const DEV_MODE = true;
+// Checks if we are on localhost OR if we explicitly enabled dev mode in Vercel
+const DEV_MODE =
+    process.env.NODE_ENV === 'development' ||
+    process.env.NEXT_PUBLIC_DEV_MODE === 'true';
 
 export default function ConnectionsGame() {
   const [gameData, setGameData] = useState<any>(null);
