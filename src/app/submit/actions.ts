@@ -1,5 +1,10 @@
 // app/submit/actions.ts
+
 "use server";
+
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 export async function sendToDiscord(data: any) {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
@@ -52,6 +57,17 @@ export async function sendToDiscord(data: any) {
         return { success: response.ok };
     } catch (error) {
         console.error("Error sending to Discord:", error);
+        return { success: false };
+    }
+}
+
+export async function incrementSolveCount(boardNumber: number) {
+    try {
+        // This atomically increases the counter for the current board
+        const newCount = await redis.incr(`solves:board:${boardNumber}`);
+        return { success: true, newCount };
+    } catch (error) {
+        console.error("Failed to increment solves:", error);
         return { success: false };
     }
 }
