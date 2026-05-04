@@ -3,9 +3,10 @@
 "use server";
 
 import { Redis } from '@upstash/redis';
-
-const redis = Redis.fromEnv();
-
+const redis = new Redis({
+    url: process.env.STORAGE_KV_REST_API_URL,
+    token: process.env.STORAGE_KV_REST_API_TOKEN,
+});
 export async function sendToDiscord(data: any) {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
