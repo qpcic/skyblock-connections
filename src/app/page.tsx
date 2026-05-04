@@ -258,7 +258,7 @@ export default function ConnectionsGame() {
 
         <div className="status-message-container">
           {mistakes === 0 && <div className="game-over-text">Game Over!</div>}
-          {completedGroups.length === 4 && <div className="win-text">Perfect! ({solveCount} solved today)</div>}
+          {completedGroups.length === 4 && <div className="win-text">GG! ({solveCount} people solved today!)</div>}
         </div>
 
         {/* RESULTS MODAL */}
@@ -266,7 +266,7 @@ export default function ConnectionsGame() {
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <h2 className="modal-title">Results</h2>
-                <p style={{textAlign: 'center', marginBottom: '10px'}}>{solveCount} people have solved this today!</p>
+                <p style={{textAlign: 'center', marginBottom: '10px'}}>Winner #{solveCount}!</p>
                 <div className="emoji-grid">
                   {guesses.map((guess, i) => (
                       <div key={i} className="emoji-row">
@@ -277,7 +277,7 @@ export default function ConnectionsGame() {
                 <button
                     onClick={() => {
                       const grid = guesses.map(g => g.map(id => ({1:"🟨", 2:"🟩", 3:"🟦", 4:"🟪"}[id as 1|2|3|4])).join("")).join("\n");
-                      navigator.clipboard.writeText(`Skyblock Connections\nPuzzle #${activeBoardNumber}\n${grid}\n\nPlay: https://skyblock-connections.com/`);
+                      navigator.clipboard.writeText(`Skyblock Connections\nBoard #${activeBoardNumber} | Winner #${solveCount}\n${grid}\n\nPlay: https://skyblock-connections.com/`);
                       showToast("Copied to clipboard!");
                     }}
                     className="btn-base btn-primary share-btn"
