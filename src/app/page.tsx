@@ -157,6 +157,58 @@ export default function ConnectionsGame() {
     }
   };
 
+  const onSubmitSuggestion = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSending(true);
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      category: formData.get("category") as string,
+      words: [formData.get("w1") as string, formData.get("w2") as string, formData.get("w3") as string, formData.get("w4") as string],
+      author: formData.get("author") as string,
+    };
+    const res = await sendToDiscord(data);
+    setIsSending(false);
+    if (res.success) {
+      setShowSuggestModal(false);
+      alert("Sent!");
+    }
+  };
+
+  // --- DEV UTILITIES ---
+  const generateAndCopyShuffle = async () => {
+    const count = puzzles.length;
+    const newShuffle = Array.from({ length: count }, (_, i) => i);
+    for (let i = newShuffle.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newShuffle[i], newShuffle[j]] = [newShuffle[j], newShuffle[i]];
+    }
+    const uniqueCheck = new Set(newShuffle);
+    if (uniqueCheck.size !== count) {
+      showToast("Error: Shuffle was not unique!");
+      return;
+    }
+    const jsonString = JSON.stringify(newShuffle);
+    try {
+      await navigator.clipboard.writeText(jsonString);
+      showToast("Unique Shuffle Copied!");
+    } catch (err) {
+      showToast("Failed to copy to clipboard.");
+    }
+  };
+
+  const nukeStorage = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
+  const devButtonStyle: React.CSSProperties = {
+    padding: '4px 10px', fontSize: '0.7rem', borderRadius: '6px',
+    border: '1px solid rgba(255, 255, 255, 0.2)', background: 'rgba(0, 0, 0, 0.0)',
+    color: '#aaa', cursor: 'pointer', transition: 'all 0.2s',
+    textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 'bold'
+  };
+
+
   return (
       <main className="main-wrapper">
         <h1 className="maintitle">Skyblock Connections</h1>
