@@ -7,7 +7,7 @@ import puzzles from '../data/puzzles.json';
 import HowToPlay from "@/src/app/components/HowToPlay";
 import GuessedToast from "@/src/app/components/GuessedToast";
 
-const DEV_MODE = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+const DEV_MODE = true;
 
 export default function ConnectionsGame() {
   const [gameData, setGameData] = useState<any>(null);
