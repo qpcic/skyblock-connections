@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getDailyPuzzle } from '../lib/gameLogic';
-import { sendToDiscord, incrementSolveCount } from './submit/actions';
+import {sendToDiscord, incrementSolveCount, simulateCronWebhook} from './submit/actions';
 import puzzles from '../data/puzzles.json';
 import HowToPlay from "@/src/app/components/HowToPlay";
 import GuessedToast from "@/src/app/components/GuessedToast";
@@ -245,6 +245,18 @@ export default function ConnectionsGame() {
     textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 'bold'
   };
 
+  const handleSimulateWebhook = async () => {
+    if (!confirm("Send test webhook to Discord?")) return;
+
+    const res = await simulateCronWebhook();
+    if (res.success) {
+      showToast("Webhook Sent!");
+    } else {
+      console.error(res.error);
+      showToast("Webhook Failed - Check Console");
+    }
+  };
+
   return (
       <main className="main-wrapper">
         <h1 className="maintitle">Skyblock Connections</h1>
@@ -355,6 +367,13 @@ export default function ConnectionsGame() {
             <span style={{ fontSize: '0.9rem', opacity: 0.6 }}>© {new Date().getFullYear()} | qpcic</span>
             {DEV_MODE && (
                 <div style={{ display: 'flex', gap: '8px' }}>
+                  {/* New Simulate Button */}
+                  <button
+                      onClick={handleSimulateWebhook}
+                      style={{ ...devButtonStyle, color: '#ffaa00', borderColor: 'rgba(255,170,0, 0.4)' }}
+                  >
+                    Simulate Webhook
+                  </button>
                   <button onClick={incrementBoardDev} style={{ ...devButtonStyle, color: '#0088ff', borderColor: 'rgba(0,136,255, 0.4)' }}>Next Board</button>
                   <button onClick={nukeStorage} style={{ ...devButtonStyle, color: '#aa0000', borderColor: 'rgba(0,0,0, 0.9)' }}>Nuke Storage</button>
                   <button onClick={generateAndCopyShuffle} style={{ ...devButtonStyle, color: '#00aa00', borderColor: 'rgba(0,0,0, 0.9)' }}>Gen Shuffle.json</button>

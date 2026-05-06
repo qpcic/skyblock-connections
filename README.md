@@ -10,7 +10,6 @@
   <p>
     <strong>Skyblock Connections</strong> is a daily word-association puzzle based on the popular NYT Connections game.
   </p>
-
   <br />
 
 ### 🎮 Play Now
