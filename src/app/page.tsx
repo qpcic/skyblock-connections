@@ -102,14 +102,25 @@ export default function ConnectionsGame() {
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setUTCHours(24, 0, 0, 0);
-      const diff = tomorrow.getTime() - now.getTime();
+      const target = new Date(now);
+
+      // Ljubljana Midnight is 22:00 UTC
+      target.setUTCHours(22, 0, 0, 0);
+
+      // If we already passed 22:00 UTC today, target 22:00 UTC tomorrow
+      if (now.getUTCHours() >= 22) {
+        target.setUTCDate(target.getUTCDate() + 1);
+      }
+
+      const diff = Math.max(0, target.getTime() - now.getTime());
+
       const h = Math.floor(diff / (1000 * 60 * 60));
       const m = Math.floor((diff / (1000 * 60)) % 60);
       const s = Math.floor((diff / 1000) % 60);
+
       setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
     };
+
     const timerId = setInterval(updateTimer, 1000);
     updateTimer();
     return () => clearInterval(timerId);
