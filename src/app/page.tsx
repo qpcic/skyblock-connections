@@ -227,7 +227,7 @@ export default function ConnectionsGame() {
       <main className="main-wrapper">
         <h1 className="maintitle">Skyblock Connections</h1>
         <div style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.1rem', opacity: 0.9 }}>
-          Board #{activeBoardNumber} | Next Puzzle in: <span>{timeLeft}</span>
+          Board #{activeBoardNumber} | Next Puzzle in: <span>{timeLeft}</span> | Players solved: {solveCount}
         </div>
 
         <div className="mistakes-container">
