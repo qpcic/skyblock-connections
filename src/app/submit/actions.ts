@@ -20,7 +20,6 @@ export async function sendDailyBoardNotification(boardNumber: number) {
         return { success: false, error: "Missing Webhook URL" };
     }
 
-    boardNumber++;
     // 1. Fetch yesterday's solve count
     const yesterdayBoard = boardNumber - 1;
     let yesterdaySolves = 0;
