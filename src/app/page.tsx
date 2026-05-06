@@ -32,7 +32,7 @@ export default function ConnectionsGame() {
   const [timeLeft, setTimeLeft] = useState("");
 
   // --- Derived State ---
-  const isWin = completedGroups.length === 4;
+  const isWin = completedGroups.length === 4 && mistakes > 0;
   const isLoss = mistakes === 0;
   const isGameOver = isWin || isLoss;
 
@@ -92,16 +92,18 @@ export default function ConnectionsGame() {
   useEffect(() => {
     if (isGameOver && isLoaded && gameData) {
 
-      // CASE: LOSS
-      if (isLoss && completedGroups.length < 4) {
+      if (isLoss) {
+        // 1. Reveal missing groups for the loser
         const remainingGroups = gameData.groups.filter(
             (g: any) => !completedGroups.some((cg) => cg.id === g.id)
         );
-        setCompletedGroups((prev) => [...prev, ...remainingGroups]);
+        if (remainingGroups.length > 0) {
+          setCompletedGroups((prev) => [...prev, ...remainingGroups]);
+        }
+        // 2. We do NOT increment solve count here
       }
-
-      // CASE: WIN (Only increment here)
-      if (isWin) {
+      else if (isWin) {
+        // 1. Only increment for actual winners
         const winKey = `skyblock-won-${activeBoardNumber}`;
         if (!localStorage.getItem(winKey)) {
           incrementSolveCount(activeBoardNumber).then(res => {
@@ -116,7 +118,7 @@ export default function ConnectionsGame() {
       const timer = setTimeout(() => setShowModal(true), 1200);
       return () => clearTimeout(timer);
     }
-  }, [isGameOver, isLoaded, activeBoardNumber, isLoss, isWin, gameData, completedGroups.length]);
+  }, [isGameOver, isLoaded, activeBoardNumber, isLoss, isWin, gameData]);
 
   // 3. Timer logic
   useEffect(() => {
