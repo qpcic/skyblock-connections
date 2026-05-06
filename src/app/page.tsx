@@ -38,6 +38,10 @@ export default function ConnectionsGame() {
     setTimeout(() => setToastMessage(curr => curr === msg ? null : curr), 4000);
   };
 
+  const isGameOver = mistakes === 0 || completedGroups.length === 4;
+  const remainingTiles = gameData.tiles.filter((tile: any) => !completedGroups.some(g => g.words.includes(tile.word)));
+
+
   // 1. Initial Sync with Server
   useEffect(() => {
     async function initGame() {
@@ -80,22 +84,37 @@ export default function ConnectionsGame() {
     initGame();
   }, []);
 
-  // 2. Handle Solve Recording
+  // 2. Handle Game End (Win or Loss)
   useEffect(() => {
-    if (completedGroups.length === 4 && isLoaded) {
-      const winKey = `skyblock-won-${activeBoardNumber}`;
-      if (!localStorage.getItem(winKey)) {
-        incrementSolveCount(activeBoardNumber).then(res => {
-          if (res.success) {
-            setSolveCount(res.newCount || 0);
-            localStorage.setItem(winKey, 'true');
-          }
-        });
+    if (isGameOver && isLoaded) {
+      // Reveal answers if they lost
+      if (mistakes === 0 && completedGroups.length < 4) {
+        // Find the groups they missed
+        const remainingGroups = gameData.groups.filter(
+            (g: any) => !completedGroups.some((cg) => cg.id === g.id)
+        );
+
+        // Add missing groups to the completed view
+        setCompletedGroups((prev) => [...prev, ...remainingGroups]);
       }
+
+      // Record the win only if they actually won
+      if (completedGroups.length === 4) {
+        const winKey = `skyblock-won-${activeBoardNumber}`;
+        if (!localStorage.getItem(winKey)) {
+          incrementSolveCount(activeBoardNumber).then(res => {
+            if (res.success) {
+              setSolveCount(res.newCount || 0);
+              localStorage.setItem(winKey, 'true');
+            }
+          });
+        }
+      }
+
       const timer = setTimeout(() => setShowModal(true), 800);
       return () => clearTimeout(timer);
     }
-  }, [completedGroups.length, isLoaded, activeBoardNumber]);
+  }, [isGameOver, isLoaded, activeBoardNumber, mistakes, gameData, completedGroups.length]);
 
   // Timer logic (Keep local for UI countdown, but doesn't affect Board ID)
   const [timeLeft, setTimeLeft] = useState("");
@@ -138,9 +157,6 @@ export default function ConnectionsGame() {
   }, [selected, completedGroups, mistakes, guesses, wordGuesses, activeBoardNumber, isLoaded]);
 
   if (!gameData || !isLoaded) return <div className="loading-container"><div className="loading-text">Loading...</div></div>;
-
-  const isGameOver = mistakes === 0 || completedGroups.length === 4;
-  const remainingTiles = gameData.tiles.filter((tile: any) => !completedGroups.some(g => g.words.includes(tile.word)));
 
   const handleTileClick = (word: string) => {
     if (isGameOver) return;
