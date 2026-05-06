@@ -72,3 +72,27 @@ export async function incrementSolveCount(boardNumber: number) {
         return { success: false };
     }
 }
+
+export async function simulateCronWebhook() {
+    // Only allow this if we are in development
+    if (process.env.NODE_ENV !== 'development' && process.env.NEXT_PUBLIC_DEV_MODE !== 'true') {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+    try {
+        const response = await fetch(`${baseUrl}/api/cron`, {
+            method: 'GET',
+            headers: {
+                // We simulate the Vercel Authorization header
+                'Authorization': `Bearer ${process.env.CRON_SECRET}`
+            }
+        });
+
+        const data = await response.json();
+        return { success: response.ok, data };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
