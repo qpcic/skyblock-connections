@@ -34,7 +34,7 @@ export async function sendDailyBoardNotification(boardNumber: number) {
   // Using the @everyone ping as requested
   const message = {
     content: `# 🧩 New Connections Board!\n` +
-        `@everyone **Board #${boardNumber}** is now live!\n\n` +
+        `**Board #${boardNumber}** is now live!\n\n` +
         `🏆 **Yesterday's Stats:** \`${yesterdaySolves}\` players successfully solved Board #${yesterdayBoard}!\n\n` +
         `**Play here:** https://skyblock-connections.com/`,
   };
