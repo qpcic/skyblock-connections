@@ -31,10 +31,11 @@ export default function ConnectionsGame() {
   const [solveCount, setSolveCount] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState("");
 
-  // --- Derived State (Moved here and added null-checks) ---
-  const isGameOver = mistakes === 0 || completedGroups.length === 4;
+  // --- Derived State ---
+  const isWin = completedGroups.length === 4;
+  const isLoss = mistakes === 0;
+  const isGameOver = isWin || isLoss;
 
-  // The fix: Use optional chaining ?. and default to an empty array []
   const remainingTiles = gameData?.tiles.filter((tile: any) =>
       !completedGroups.some(g => g.words.includes(tile.word))
   ) || [];
@@ -87,19 +88,20 @@ export default function ConnectionsGame() {
     initGame();
   }, []);
 
-  // 2. Handle Game End (Win or Loss)
+  // 2. Handle Game End (Win vs Loss Logic)
   useEffect(() => {
     if (isGameOver && isLoaded && gameData) {
-      // Reveal answers if they lost
-      if (mistakes === 0 && completedGroups.length < 4) {
+
+      // CASE: LOSS
+      if (isLoss && completedGroups.length < 4) {
         const remainingGroups = gameData.groups.filter(
             (g: any) => !completedGroups.some((cg) => cg.id === g.id)
         );
         setCompletedGroups((prev) => [...prev, ...remainingGroups]);
       }
 
-      // Record the win only if they actually won
-      if (completedGroups.length === 4) {
+      // CASE: WIN (Only increment here)
+      if (isWin) {
         const winKey = `skyblock-won-${activeBoardNumber}`;
         if (!localStorage.getItem(winKey)) {
           incrementSolveCount(activeBoardNumber).then(res => {
@@ -111,10 +113,10 @@ export default function ConnectionsGame() {
         }
       }
 
-      const timer = setTimeout(() => setShowModal(true), 800);
+      const timer = setTimeout(() => setShowModal(true), 1200);
       return () => clearTimeout(timer);
     }
-  }, [isGameOver, isLoaded, activeBoardNumber, mistakes, gameData, completedGroups.length]);
+  }, [isGameOver, isLoaded, activeBoardNumber, isLoss, isWin, gameData, completedGroups.length]);
 
   // 3. Timer logic
   useEffect(() => {
@@ -274,15 +276,17 @@ export default function ConnectionsGame() {
         </div>
 
         <div className="status-message-container">
-          {mistakes === 0 && <div className="game-over-text">Game Over!</div>}
-          {completedGroups.length === 4 && <div className="win-text">GG! ({solveCount} people solved today!)</div>}
+          {isLoss && <div className="game-over-text">Game Over!</div>}
+          {isWin && <div className="win-text">GG! ({solveCount} people solved today!)</div>}
         </div>
 
         {showModal && (
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <h2 className="modal-title">Results</h2>
-                <p style={{textAlign: 'center', marginBottom: '10px'}}>Winner #{solveCount}!</p>
+                <h2 className="modal-title">{isWin ? "Results" : "Game Over"}</h2>
+                <p style={{textAlign: 'center', marginBottom: '10px'}}>
+                  {isWin ? `Winner #${solveCount}!` : "Better luck tomorrow!"}
+                </p>
                 <div className="emoji-grid">
                   {guesses.map((guess, i) => (
                       <div key={i} className="emoji-row">
@@ -293,7 +297,10 @@ export default function ConnectionsGame() {
                 <button
                     onClick={() => {
                       const grid = guesses.map(g => g.map(id => ({1:"🟨", 2:"🟩", 3:"🟦", 4:"🟪"}[id as 1|2|3|4])).join("")).join("\n");
-                      navigator.clipboard.writeText(`Skyblock Connections\nBoard #${activeBoardNumber} | Winner #${solveCount}\n${grid}\n\nPlay: https://skyblock-connections.com/`);
+                      const shareText = isWin
+                          ? `Skyblock Connections\nBoard #${activeBoardNumber} | Winner #${solveCount}\n${grid}\n\nPlay: https://skyblock-connections.com/`
+                          : `Skyblock Connections\nBoard #${activeBoardNumber} | Lost\n${grid}\n\nPlay: https://skyblock-connections.com/`;
+                      navigator.clipboard.writeText(shareText);
                       showToast("Copied to clipboard!");
                     }}
                     className="btn-base btn-primary share-btn"
