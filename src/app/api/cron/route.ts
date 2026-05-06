@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     try {
         // Calculate the board number based on your 22:00 UTC reset
         const now = new Date();
-        const start = new Date("2024-12-25T22:00:00Z"); // Your project start date
+        const start = new Date("2026-04-18T22:00:00Z"); // Your project start date
         const diff = now.getTime() - start.getTime();
         const boardNumber = Math.floor(diff / (1000 * 60 * 60 * 24));
 
