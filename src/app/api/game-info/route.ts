@@ -13,7 +13,7 @@ export async function GET() {
 
         // 1. Point to the EXACT start moment in Ljubljana time.
         // We use '2026-04-18T22:00:00Z' because 10 PM UTC = Midnight Ljubljana.
-        const startDate = new Date('2026-04-19T22:00:00Z');
+        const startDate = new Date('2026-04-18T22:00:00Z');
 
         // 2. Calculate the difference
         const diffTime = now.getTime() - startDate.getTime();

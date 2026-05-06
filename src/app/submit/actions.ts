@@ -135,7 +135,7 @@ export async function simulateCronWebhook() {
     try {
         // Calculate the current active board number
         const now = new Date();
-        const start = new Date("2026-04-19T22:00:00Z");
+        const start = new Date("2026-04-18T22:00:00Z");
         const diff = now.getTime() - start.getTime();
         const boardNumber = Math.floor(diff / (1000 * 60 * 60 * 24));
 
