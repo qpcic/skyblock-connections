@@ -20,6 +20,7 @@ export async function sendDailyBoardNotification(boardNumber: number) {
         return { success: false, error: "Missing Webhook URL" };
     }
 
+    boardNumber++;
     // 1. Fetch yesterday's solve count
     const yesterdayBoard = boardNumber - 1;
     let yesterdaySolves = 0;
@@ -32,7 +33,7 @@ export async function sendDailyBoardNotification(boardNumber: number) {
     // 2. Construct the Message
     const message = {
         content: `# 🧩 New Connections Board!\n` +
-            `@everyone **Board #${boardNumber}** is now live!\n\n` +
+            `**Board #${boardNumber}** is now live!\n\n` +
             `🏆 **Yesterday's Stats:** \`${yesterdaySolves}\` players solved Board #${yesterdayBoard}!\n\n` +
             `**Play here:** https://skyblock-connections.com/`,
     };
