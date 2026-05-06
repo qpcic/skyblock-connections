@@ -15,6 +15,7 @@ export default function ConnectionsGame() {
   const [gameData, setGameData] = useState<any>(null);
   const [selected, setSelected] = useState<string[]>([]);
   const [completedGroups, setCompletedGroups] = useState<any[]>([]);
+  const [mergingWords, setMergingWords] = useState<string[]>([]); // New: Animation state
   const [mistakes, setMistakes] = useState(4);
   const [guesses, setGuesses] = useState<number[][]>([]);
   const [idToColorMap, setIdToColorMap] = useState<Record<number, number>>({});
@@ -151,7 +152,7 @@ export default function ConnectionsGame() {
   if (!gameData || !isLoaded) return <div className="loading-container"><div className="loading-text">Loading...</div></div>;
 
   const handleTileClick = (word: string) => {
-    if (isGameOver) return;
+    if (isGameOver || mergingWords.includes(word)) return;
     if (selected.includes(word)) setSelected(selected.filter(w => w !== word));
     else if (selected.length < 4) setSelected([...selected, word]);
   };
@@ -166,12 +167,25 @@ export default function ConnectionsGame() {
     const selectedTiles = selected.map(word => gameData.tiles.find((t: any) => t.word === word));
     const categoryIds = selectedTiles.map(tile => tile.categoryId);
     const colors = categoryIds.map(id => idToColorMap[id]);
-    setGuesses(prev => [...prev, colors]);
-    setWordGuesses(prev => [...prev, selected]);
+
+    // Check if CORRECT
     if (categoryIds.every(id => id === categoryIds[0])) {
-      setCompletedGroups([...completedGroups, gameData.groups.find((g: any) => g.id === categoryIds[0])]);
-      setSelected([]);
+      // Start Animation
+      setMergingWords(selected);
+
+      // Delay state update to allow animation to play
+      setTimeout(() => {
+        setGuesses(prev => [...prev, colors]);
+        setWordGuesses(prev => [...prev, selected]);
+        setCompletedGroups([...completedGroups, gameData.groups.find((g: any) => g.id === categoryIds[0])]);
+        setSelected([]);
+        setMergingWords([]);
+      }, 600);
+
     } else {
+      // INCORRECT
+      setGuesses(prev => [...prev, colors]);
+      setWordGuesses(prev => [...prev, selected]);
       const counts: any = {};
       categoryIds.forEach(id => counts[id] = (counts[id] || 0) + 1);
       if (Object.values(counts).some(c => c === 3)) showToast("One away...");
@@ -257,7 +271,11 @@ export default function ConnectionsGame() {
           </div>
           <div className="tiles-grid">
             {remainingTiles.map((tile: any) => (
-                <button key={tile.word} onClick={() => handleTileClick(tile.word)} className={`tile-button ${selected.includes(tile.word) ? 'selected' : ''}`}>
+                <button
+                    key={tile.word}
+                    onClick={() => handleTileClick(tile.word)}
+                    className={`tile-button ${selected.includes(tile.word) ? 'selected' : ''} ${mergingWords.includes(tile.word) ? 'merging' : ''}`}
+                >
                   {tile.word}
                 </button>
             ))}
