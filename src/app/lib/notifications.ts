@@ -1,36 +1,36 @@
 import { Redis } from '@upstash/redis';
 
-// Initialize Redis using your existing environment variables
+// Initialize Redis
 const redis = new Redis({
   url: process.env.STORAGE_KV_REST_API_URL!,
   token: process.env.STORAGE_KV_REST_API_TOKEN!,
 });
 
 /**
- * Sends a Discord notification for the new daily board,
- * including the solve statistics from the previous day.
+ * Sends a Discord notification for the new daily board.
+ * Uses a dedicated "Daily Announcement" webhook.
  */
 export async function sendDailyBoardNotification(boardNumber: number) {
-  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  // Use a specific env var for the daily announcements
+  const dailyWebhookUrl = process.env.DISCORD_DAILY_WEBHOOK_URL;
 
-  if (!webhookUrl) {
-    throw new Error("Missing DISCORD_WEBHOOK_URL environment variable.");
+  if (!dailyWebhookUrl) {
+    throw new Error("Missing DISCORD_DAILY_WEBHOOK_URL environment variable.");
   }
 
-  // 1. Fetch yesterday's solve count from Upstash Redis
+  // 1. Fetch yesterday's solve count
   const yesterdayBoard = boardNumber - 1;
   let yesterdaySolves = 0;
 
   try {
-    // Matches your key format: "solves:board:N"
     const count = await redis.get<number>(`solves:board:${yesterdayBoard}`);
     yesterdaySolves = count || 0;
   } catch (dbError) {
-    // Log the error but don't stop the notification from sending
     console.error("Failed to fetch yesterday's solves from Redis:", dbError);
   }
 
-  // 2. Format the message with Discord Markdown
+  // 2. Format the message
+  // Using the @everyone ping as requested
   const message = {
     content: `# 🧩 New Connections Board!\n` +
         `@everyone **Board #${boardNumber}** is now live!\n\n` +
@@ -38,9 +38,9 @@ export async function sendDailyBoardNotification(boardNumber: number) {
         `**Play here:** https://skyblock-connections.com/`,
   };
 
-  // 3. Send the POST request to the Discord Webhook
+  // 3. Send the request
   try {
-    const res = await fetch(webhookUrl, {
+    const res = await fetch(dailyWebhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(message),
@@ -51,9 +51,9 @@ export async function sendDailyBoardNotification(boardNumber: number) {
       throw new Error(`Discord API error (${res.status}): ${errorText}`);
     }
 
-    return { success: true, board: boardNumber, historicalSolves: yesterdaySolves };
+    return { success: true };
   } catch (fetchError: any) {
-    console.error("Failed to send Discord webhook:", fetchError);
+    console.error("Failed to send Daily Discord webhook:", fetchError);
     throw fetchError;
   }
 }
