@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sendDailyBoardNotification } from '../../lib/notifications'; // Adjust path
+import { sendDailyBoardNotification } from '../../submit/actions'; // Adjust path
 
 export async function GET(request: Request) {
     // Check Authorization
