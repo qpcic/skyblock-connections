@@ -23,11 +23,11 @@ export const getDailyPuzzle = (boardNumber: number) => {
       const category = (puzzles as any[])[puzzleIndex];
 
       // --- DIAGNOSTIC LOGGING ---
-      console.log(`[Board ${boardNumber}] Slot ${i}: checking mapIndex ${mapIndex} -> puzzleIndex ${puzzleIndex}`);
+      //console.log(`[Board ${boardNumber}] Slot ${i}: checking mapIndex ${mapIndex} -> puzzleIndex ${puzzleIndex}`);
       
       // Safety Guard: Check if category exists before checking words
       if (!category) {
-        console.warn(`⚠️ Missing category at puzzles[${puzzleIndex}]. Skipping...`);
+       // console.warn(`⚠️ Missing category at puzzles[${puzzleIndex}]. Skipping...`);
         lookAhead++;
         continue; // Try the next lookAhead index
       }
@@ -39,13 +39,14 @@ export const getDailyPuzzle = (boardNumber: number) => {
 
       if (!hasDuplicate) {
         selectedGroups.push(category);
-        console.warn(`Selected category: "${category.category}"`);
+        //console.warn(`Selected category: "${category.category}"`);
         category.words.forEach((w: string) => usedWordsInBoard.add(w.toUpperCase().trim()));
         foundValid = true;
       } else {
-        console.log(`🔄 Duplicate found in category "${category.category}". Skipping...`);
+       // console.log(`🔄 Duplicate found in category "${category.category}". Skipping...`);
         lookAhead++; 
       }
+
     }
   }
 
