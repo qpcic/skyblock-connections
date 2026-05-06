@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { getDailyPuzzle } from '../lib/gameLogic';
-import { sendToDiscord, incrementSolveCount } from './submit/actions'; // Added action
+import { sendToDiscord, incrementSolveCount } from './submit/actions';
 import puzzles from '../data/puzzles.json';
 import HowToPlay from "@/src/app/components/HowToPlay";
 import GuessedToast from "@/src/app/components/GuessedToast";
 
-// Checks if we are on localhost OR if we explicitly enabled dev mode in Vercel
 const DEV_MODE =
     process.env.NODE_ENV === 'development' ||
     process.env.NEXT_PUBLIC_DEV_MODE === 'true';
@@ -28,19 +27,23 @@ export default function ConnectionsGame() {
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // New State for Backend Info
   const [activeBoardNumber, setActiveBoardNumber] = useState<number>(0);
   const [solveCount, setSolveCount] = useState<number>(0);
+  const [timeLeft, setTimeLeft] = useState("");
+
+  // --- Derived State (Moved here and added null-checks) ---
+  const isGameOver = mistakes === 0 || completedGroups.length === 4;
+
+  // The fix: Use optional chaining ?. and default to an empty array []
+  const remainingTiles = gameData?.tiles.filter((tile: any) =>
+      !completedGroups.some(g => g.words.includes(tile.word))
+  ) || [];
 
   const showToast = (msg: string) => {
     if (toastMessage && msg === "Already guessed!") return;
     setToastMessage(msg);
     setTimeout(() => setToastMessage(curr => curr === msg ? null : curr), 4000);
   };
-
-  const isGameOver = mistakes === 0 || completedGroups.length === 4;
-  const remainingTiles = gameData.tiles.filter((tile: any) => !completedGroups.some(g => g.words.includes(tile.word)));
-
 
   // 1. Initial Sync with Server
   useEffect(() => {
@@ -86,15 +89,12 @@ export default function ConnectionsGame() {
 
   // 2. Handle Game End (Win or Loss)
   useEffect(() => {
-    if (isGameOver && isLoaded) {
+    if (isGameOver && isLoaded && gameData) {
       // Reveal answers if they lost
       if (mistakes === 0 && completedGroups.length < 4) {
-        // Find the groups they missed
         const remainingGroups = gameData.groups.filter(
             (g: any) => !completedGroups.some((cg) => cg.id === g.id)
         );
-
-        // Add missing groups to the completed view
         setCompletedGroups((prev) => [...prev, ...remainingGroups]);
       }
 
@@ -116,27 +116,19 @@ export default function ConnectionsGame() {
     }
   }, [isGameOver, isLoaded, activeBoardNumber, mistakes, gameData, completedGroups.length]);
 
-  // Timer logic (Keep local for UI countdown, but doesn't affect Board ID)
-  const [timeLeft, setTimeLeft] = useState("");
+  // 3. Timer logic
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
       const target = new Date(now);
-
-      // Ljubljana Midnight is 22:00 UTC
       target.setUTCHours(22, 0, 0, 0);
-
-      // If we already passed 22:00 UTC today, target 22:00 UTC tomorrow
       if (now.getUTCHours() >= 22) {
         target.setUTCDate(target.getUTCDate() + 1);
       }
-
       const diff = Math.max(0, target.getTime() - now.getTime());
-
       const h = Math.floor(diff / (1000 * 60 * 60));
       const m = Math.floor((diff / (1000 * 60)) % 60);
       const s = Math.floor((diff / 1000) % 60);
-
       setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
     };
 
@@ -145,7 +137,7 @@ export default function ConnectionsGame() {
     return () => clearInterval(timerId);
   }, []);
 
-  // Persistence logic (Same as before)
+  // 4. Persistence logic
   useEffect(() => {
     if (isLoaded && activeBoardNumber) {
       const progress = {
@@ -204,7 +196,6 @@ export default function ConnectionsGame() {
     }
   };
 
-  // --- DEV UTILITIES ---
   const generateAndCopyShuffle = async () => {
     const count = puzzles.length;
     const newShuffle = Array.from({ length: count }, (_, i) => i);
@@ -237,7 +228,6 @@ export default function ConnectionsGame() {
     color: '#aaa', cursor: 'pointer', transition: 'all 0.2s',
     textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 'bold'
   };
-
 
   return (
       <main className="main-wrapper">
@@ -288,7 +278,6 @@ export default function ConnectionsGame() {
           {completedGroups.length === 4 && <div className="win-text">GG! ({solveCount} people solved today!)</div>}
         </div>
 
-        {/* RESULTS MODAL */}
         {showModal && (
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -314,7 +303,6 @@ export default function ConnectionsGame() {
             </div>
         )}
 
-        {/* SUGGESTION MODAL */}
         {showSuggestModal && (
             <div className="modal-overlay" onClick={() => setShowSuggestModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
