@@ -91,19 +91,15 @@ export default function ConnectionsGame() {
   // 2. Handle Game End (Win vs Loss Logic)
   useEffect(() => {
     if (isGameOver && isLoaded && gameData) {
-
       if (isLoss) {
-        // 1. Reveal missing groups for the loser
         const remainingGroups = gameData.groups.filter(
             (g: any) => !completedGroups.some((cg) => cg.id === g.id)
         );
         if (remainingGroups.length > 0) {
           setCompletedGroups((prev) => [...prev, ...remainingGroups]);
         }
-        // 2. We do NOT increment solve count here
       }
       else if (isWin) {
-        // 1. Only increment for actual winners
         const winKey = `skyblock-won-${activeBoardNumber}`;
         if (!localStorage.getItem(winKey)) {
           incrementSolveCount(activeBoardNumber).then(res => {
@@ -200,17 +196,19 @@ export default function ConnectionsGame() {
     }
   };
 
+  // --- DEV UTILITIES ---
+  const incrementBoardDev = () => {
+    const currentOffset = parseInt(localStorage.getItem('skyblock-dev-offset') || "0");
+    localStorage.setItem('skyblock-dev-offset', (currentOffset + 1).toString());
+    window.location.reload();
+  };
+
   const generateAndCopyShuffle = async () => {
     const count = puzzles.length;
     const newShuffle = Array.from({ length: count }, (_, i) => i);
     for (let i = newShuffle.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [newShuffle[i], newShuffle[j]] = [newShuffle[j], newShuffle[i]];
-    }
-    const uniqueCheck = new Set(newShuffle);
-    if (uniqueCheck.size !== count) {
-      showToast("Error: Shuffle was not unique!");
-      return;
     }
     const jsonString = JSON.stringify(newShuffle);
     try {
@@ -339,6 +337,7 @@ export default function ConnectionsGame() {
             <span style={{ fontSize: '0.9rem', opacity: 0.6 }}>© {new Date().getFullYear()} | qpcic</span>
             {DEV_MODE && (
                 <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={incrementBoardDev} style={{ ...devButtonStyle, color: '#0088ff', borderColor: 'rgba(0,136,255, 0.4)' }}>Next Board</button>
                   <button onClick={nukeStorage} style={{ ...devButtonStyle, color: '#aa0000', borderColor: 'rgba(0,0,0, 0.9)' }}>Nuke Storage</button>
                   <button onClick={generateAndCopyShuffle} style={{ ...devButtonStyle, color: '#00aa00', borderColor: 'rgba(0,0,0, 0.9)' }}>Gen Shuffle.json</button>
                 </div>
