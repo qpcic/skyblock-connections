@@ -15,7 +15,7 @@ export async function GET(request: Request) {
         const diff = now.getTime() - start.getTime();
         const boardNumber = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-        await sendDailyBoardNotification(boardNumber);
+        await sendDailyBoardNotification(boardNumber+1);
 
         return NextResponse.json({
             success: true,

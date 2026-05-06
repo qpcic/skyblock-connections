@@ -19,6 +19,7 @@ export async function sendDailyBoardNotification(boardNumber: number) {
   }
 
   // 1. Fetch yesterday's solve count
+
   const yesterdayBoard = boardNumber - 1;
   let yesterdaySolves = 0;
 
