@@ -1,17 +1,64 @@
-// app/submit/actions.ts
-
 "use server";
 
 import { Redis } from '@upstash/redis';
+
+// Initialize Redis with Upstash credentials
 const redis = new Redis({
-    url: process.env.STORAGE_KV_REST_API_URL,
-    token: process.env.STORAGE_KV_REST_API_TOKEN,
+    url: process.env.STORAGE_KV_REST_API_URL!,
+    token: process.env.STORAGE_KV_REST_API_TOKEN!,
 });
+
+/**
+ * Sends the daily board announcement to a dedicated Discord channel.
+ * Includes @everyone ping and stats from the previous board.
+ */
+export async function sendDailyBoardNotification(boardNumber: number) {
+    const dailyWebhookUrl = process.env.DISCORD_DAILY_WEBHOOK_URL;
+
+    if (!dailyWebhookUrl) {
+        console.error("Daily Webhook URL (DISCORD_DAILY_WEBHOOK_URL) is not defined.");
+        return { success: false, error: "Missing Webhook URL" };
+    }
+
+    // 1. Fetch yesterday's solve count
+    const yesterdayBoard = boardNumber - 1;
+    let yesterdaySolves = 0;
+    try {
+        yesterdaySolves = await redis.get<number>(`solves:board:${yesterdayBoard}`) || 0;
+    } catch (e) {
+        console.error("Redis fetch error for yesterday's stats:", e);
+    }
+
+    // 2. Construct the Message
+    const message = {
+        content: `# 🧩 New Connections Board!\n` +
+            `@everyone **Board #${boardNumber}** is now live!\n\n` +
+            `🏆 **Yesterday's Stats:** \`${yesterdaySolves}\` players solved Board #${yesterdayBoard}!\n\n` +
+            `**Play here:** https://skyblock-connections.com/`,
+    };
+
+    // 3. Post to Discord
+    try {
+        const response = await fetch(dailyWebhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(message),
+        });
+        return { success: response.ok };
+    } catch (error) {
+        console.error("Error sending daily notification:", error);
+        return { success: false };
+    }
+}
+
+/**
+ * Sends user-submitted puzzle suggestions to the admin Discord channel.
+ */
 export async function sendToDiscord(data: any) {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
     if (!webhookUrl) {
-        console.error("Webhook URL is not defined.");
+        console.error("Suggestion Webhook URL is not defined.");
         return { success: false };
     }
 
@@ -23,7 +70,7 @@ export async function sendToDiscord(data: any) {
                 embeds: [
                     {
                         title: "🧩 New Skyblock Connection Suggestion",
-                        color: 0x5865F2, // Discord Blurple color (Hex: #5865F2)
+                        color: 0x5865F2,
                         fields: [
                             {
                                 name: "Category",
@@ -32,7 +79,7 @@ export async function sendToDiscord(data: any) {
                             },
                             {
                                 name: "Words",
-                                value: `\`${data.words.join("` • `")}\``, // Inline code blocks for words
+                                value: `\`${data.words.join("` • `")}\``,
                                 inline: false,
                             },
                             {
@@ -62,9 +109,11 @@ export async function sendToDiscord(data: any) {
     }
 }
 
+/**
+ * Atomically increments the solve counter for the current board.
+ */
 export async function incrementSolveCount(boardNumber: number) {
     try {
-        // This atomically increases the counter for the current board
         const newCount = await redis.incr(`solves:board:${boardNumber}`);
         return { success: true, newCount };
     } catch (error) {
@@ -73,26 +122,28 @@ export async function incrementSolveCount(boardNumber: number) {
     }
 }
 
+/**
+ * Dev Tool: Manually triggers the Daily Notification logic.
+ * This calls the logic directly to avoid loopback fetch errors on Vercel.
+ */
 export async function simulateCronWebhook() {
-    // Only allow this if we are in development
+    // Safety check: Only allow in Dev mode
     if (process.env.NODE_ENV !== 'development' && process.env.NEXT_PUBLIC_DEV_MODE !== 'true') {
         return { success: false, error: "Unauthorized" };
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
     try {
-        const response = await fetch(`${baseUrl}/api/cron`, {
-            method: 'GET',
-            headers: {
-                // We simulate the Vercel Authorization header
-                'Authorization': `Bearer ${process.env.CRON_SECRET}`
-            }
-        });
+        // Calculate the current active board number
+        const now = new Date();
+        const start = new Date("2024-12-25T22:00:00Z");
+        const diff = now.getTime() - start.getTime();
+        const boardNumber = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-        const data = await response.json();
-        return { success: response.ok, data };
+        // Call the notification function directly
+        const result = await sendDailyBoardNotification(boardNumber);
+        return result;
     } catch (error: any) {
+        console.error("Simulation failed:", error);
         return { success: false, error: error.message };
     }
 }
