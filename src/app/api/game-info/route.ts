@@ -10,9 +10,15 @@ const redis = new Redis({
 export async function GET() {
     try {
         const now = new Date();
-        const startDate = new Date('2026-04-19T00:00:00Z');
 
+        // 1. Point to the EXACT start moment in Ljubljana time.
+        // We use '2026-04-18T22:00:00Z' because 10 PM UTC = Midnight Ljubljana.
+        const startDate = new Date('2026-04-18T22:00:00Z');
+
+        // 2. Calculate the difference
         const diffTime = now.getTime() - startDate.getTime();
+
+        // This math will now result in a new day exactly at 00:00 Ljubljana time
         const boardNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
         // Fetch the solve count

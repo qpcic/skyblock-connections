@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { getDailyPuzzle } from '../lib/gameLogic';
-import { sendToDiscord, incrementSolveCount } from './submit/actions'; // Added action
+import { sendToDiscord, incrementSolveCount } from './submit/actions';
 import puzzles from '../data/puzzles.json';
 import HowToPlay from "@/src/app/components/HowToPlay";
 import GuessedToast from "@/src/app/components/GuessedToast";
 
-// Checks if we are on localhost OR if we explicitly enabled dev mode in Vercel
 const DEV_MODE =
     process.env.NODE_ENV === 'development' ||
     process.env.NEXT_PUBLIC_DEV_MODE === 'true';
@@ -28,9 +27,18 @@ export default function ConnectionsGame() {
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // New State for Backend Info
   const [activeBoardNumber, setActiveBoardNumber] = useState<number>(0);
   const [solveCount, setSolveCount] = useState<number>(0);
+  const [timeLeft, setTimeLeft] = useState("");
+
+  // --- Derived State ---
+  const isWin = completedGroups.length === 4 && mistakes > 0;
+  const isLoss = mistakes === 0;
+  const isGameOver = isWin || isLoss;
+
+  const remainingTiles = gameData?.tiles.filter((tile: any) =>
+      !completedGroups.some(g => g.words.includes(tile.word))
+  ) || [];
 
   const showToast = (msg: string) => {
     if (toastMessage && msg === "Already guessed!") return;
@@ -80,42 +88,56 @@ export default function ConnectionsGame() {
     initGame();
   }, []);
 
-  // 2. Handle Solve Recording
+  // 2. Handle Game End (Win vs Loss Logic)
   useEffect(() => {
-    if (completedGroups.length === 4 && isLoaded) {
-      const winKey = `skyblock-won-${activeBoardNumber}`;
-      if (!localStorage.getItem(winKey)) {
-        incrementSolveCount(activeBoardNumber).then(res => {
-          if (res.success) {
-            setSolveCount(res.newCount || 0);
-            localStorage.setItem(winKey, 'true');
-          }
-        });
+    if (isGameOver && isLoaded && gameData) {
+      if (isLoss) {
+        const remainingGroups = gameData.groups.filter(
+            (g: any) => !completedGroups.some((cg) => cg.id === g.id)
+        );
+        if (remainingGroups.length > 0) {
+          setCompletedGroups((prev) => [...prev, ...remainingGroups]);
+        }
       }
-      const timer = setTimeout(() => setShowModal(true), 800);
+      else if (isWin) {
+        const winKey = `skyblock-won-${activeBoardNumber}`;
+        if (!localStorage.getItem(winKey)) {
+          incrementSolveCount(activeBoardNumber).then(res => {
+            if (res.success) {
+              setSolveCount(res.newCount || 0);
+              localStorage.setItem(winKey, 'true');
+            }
+          });
+        }
+      }
+
+      const timer = setTimeout(() => setShowModal(true), 1200);
       return () => clearTimeout(timer);
     }
-  }, [completedGroups.length, isLoaded, activeBoardNumber]);
+  }, [isGameOver, isLoaded, activeBoardNumber, isLoss, isWin, gameData]);
 
-  // Timer logic (Keep local for UI countdown, but doesn't affect Board ID)
-  const [timeLeft, setTimeLeft] = useState("");
+  // 3. Timer logic
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setUTCHours(24, 0, 0, 0);
-      const diff = tomorrow.getTime() - now.getTime();
+      const target = new Date(now);
+      target.setUTCHours(22, 0, 0, 0);
+      if (now.getUTCHours() >= 22) {
+        target.setUTCDate(target.getUTCDate() + 1);
+      }
+      const diff = Math.max(0, target.getTime() - now.getTime());
       const h = Math.floor(diff / (1000 * 60 * 60));
       const m = Math.floor((diff / (1000 * 60)) % 60);
       const s = Math.floor((diff / 1000) % 60);
       setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
     };
+
     const timerId = setInterval(updateTimer, 1000);
     updateTimer();
     return () => clearInterval(timerId);
   }, []);
 
-  // Persistence logic (Same as before)
+  // 4. Persistence logic
   useEffect(() => {
     if (isLoaded && activeBoardNumber) {
       const progress = {
@@ -127,9 +149,6 @@ export default function ConnectionsGame() {
   }, [selected, completedGroups, mistakes, guesses, wordGuesses, activeBoardNumber, isLoaded]);
 
   if (!gameData || !isLoaded) return <div className="loading-container"><div className="loading-text">Loading...</div></div>;
-
-  const isGameOver = mistakes === 0 || completedGroups.length === 4;
-  const remainingTiles = gameData.tiles.filter((tile: any) => !completedGroups.some(g => g.words.includes(tile.word)));
 
   const handleTileClick = (word: string) => {
     if (isGameOver) return;
@@ -178,17 +197,18 @@ export default function ConnectionsGame() {
   };
 
   // --- DEV UTILITIES ---
+  const incrementBoardDev = () => {
+    const currentOffset = parseInt(localStorage.getItem('skyblock-dev-offset') || "0");
+    localStorage.setItem('skyblock-dev-offset', (currentOffset + 1).toString());
+    window.location.reload();
+  };
+
   const generateAndCopyShuffle = async () => {
     const count = puzzles.length;
     const newShuffle = Array.from({ length: count }, (_, i) => i);
     for (let i = newShuffle.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [newShuffle[i], newShuffle[j]] = [newShuffle[j], newShuffle[i]];
-    }
-    const uniqueCheck = new Set(newShuffle);
-    if (uniqueCheck.size !== count) {
-      showToast("Error: Shuffle was not unique!");
-      return;
     }
     const jsonString = JSON.stringify(newShuffle);
     try {
@@ -211,12 +231,11 @@ export default function ConnectionsGame() {
     textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 'bold'
   };
 
-
   return (
       <main className="main-wrapper">
         <h1 className="maintitle">Skyblock Connections</h1>
         <div style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.1rem', opacity: 0.9 }}>
-          Board #{activeBoardNumber} | Next Puzzle in: <span>{timeLeft}</span>
+          Board #{activeBoardNumber} | Next Puzzle in: <span>{timeLeft}</span> | Players solved today: {solveCount}
         </div>
 
         <div className="mistakes-container">
@@ -257,16 +276,17 @@ export default function ConnectionsGame() {
         </div>
 
         <div className="status-message-container">
-          {mistakes === 0 && <div className="game-over-text">Game Over!</div>}
-          {completedGroups.length === 4 && <div className="win-text">GG! ({solveCount} people solved today!)</div>}
+          {isLoss && <div className="game-over-text">Game Over!</div>}
+          {isWin && <div className="win-text">GG! ({solveCount} people solved today!)</div>}
         </div>
 
-        {/* RESULTS MODAL */}
         {showModal && (
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <h2 className="modal-title">Results</h2>
-                <p style={{textAlign: 'center', marginBottom: '10px'}}>Winner #{solveCount}!</p>
+                <h2 className="modal-title">{isWin ? "Results" : "Game Over"}</h2>
+                <p style={{textAlign: 'center', marginBottom: '10px'}}>
+                  {isWin ? `Winner #${solveCount}!` : "Better luck tomorrow!"}
+                </p>
                 <div className="emoji-grid">
                   {guesses.map((guess, i) => (
                       <div key={i} className="emoji-row">
@@ -277,7 +297,10 @@ export default function ConnectionsGame() {
                 <button
                     onClick={() => {
                       const grid = guesses.map(g => g.map(id => ({1:"🟨", 2:"🟩", 3:"🟦", 4:"🟪"}[id as 1|2|3|4])).join("")).join("\n");
-                      navigator.clipboard.writeText(`Skyblock Connections\nBoard #${activeBoardNumber} | Winner #${solveCount}\n${grid}\n\nPlay: https://skyblock-connections.com/`);
+                      const shareText = isWin
+                          ? `Skyblock Connections\nBoard #${activeBoardNumber} | Winner #${solveCount}\n${grid}\n\nPlay: https://skyblock-connections.com/`
+                          : `Skyblock Connections\nBoard #${activeBoardNumber} | Lost\n${grid}\n\nPlay: https://skyblock-connections.com/`;
+                      navigator.clipboard.writeText(shareText);
                       showToast("Copied to clipboard!");
                     }}
                     className="btn-base btn-primary share-btn"
@@ -287,7 +310,6 @@ export default function ConnectionsGame() {
             </div>
         )}
 
-        {/* SUGGESTION MODAL */}
         {showSuggestModal && (
             <div className="modal-overlay" onClick={() => setShowSuggestModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -315,6 +337,7 @@ export default function ConnectionsGame() {
             <span style={{ fontSize: '0.9rem', opacity: 0.6 }}>© {new Date().getFullYear()} | qpcic</span>
             {DEV_MODE && (
                 <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={incrementBoardDev} style={{ ...devButtonStyle, color: '#0088ff', borderColor: 'rgba(0,136,255, 0.4)' }}>Next Board</button>
                   <button onClick={nukeStorage} style={{ ...devButtonStyle, color: '#aa0000', borderColor: 'rgba(0,0,0, 0.9)' }}>Nuke Storage</button>
                   <button onClick={generateAndCopyShuffle} style={{ ...devButtonStyle, color: '#00aa00', borderColor: 'rgba(0,0,0, 0.9)' }}>Gen Shuffle.json</button>
                 </div>
